@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shopping List - AuraFitness</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#615e5a",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#1d1b19",
+                        "on-primary-fixed": "#390b00",
+                        "tertiary-fixed-dim": "#cac6c1",
+                        "inverse-primary": "#ffb59e",
+                        "on-primary-fixed-variant": "#7a2f15",
+                        "surface-container": "#f0eded",
+                        "inverse-surface": "#313030",
+                        "surface-variant": "#e5e2e1",
+                        "surface-dim": "#dcd9d9",
+                        "on-surface": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#474745",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#95918d",
+                        "secondary-fixed-dim": "#c8c6c3",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary-fixed": "#e7e2dd",
+                        "outline": "#88726c",
+                        "on-secondary-fixed": "#1c1c1a",
+                        "outline-variant": "#dbc1b9",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1c1b1b",
+                        "on-surface-variant": "#55433d",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#99462a",
+                        "surface": "#fcf9f8",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-container": "#636260",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#ffdbd0",
+                        "secondary": "#5f5e5c",
+                        "primary-fixed-dim": "#ffb59e",
+                        "on-tertiary-container": "#2c2a27",
+                        "primary-container": "#d97757",
+                        "on-tertiary-fixed-variant": "#494643",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-container": "#e2dfdc",
+                        "primary": "#99462a",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-primary-container": "#541400",
+                        "surface-container-low": "#f6f3f2",
+                        "secondary-fixed": "#e5e2df"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "xxl": "80px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "container-max": "1120px",
+                        "xl": "48px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e5e2df; border-radius: 10px; }
+        .strikethrough-checked:checked + label { text-decoration: line-through; color: #5f5e5c; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col md:flex-row font-body-md">
+<!-- TopNavBar (Mobile) -->
+<header class="md:hidden w-full h-16 shadow-sm dark:shadow-none bg-surface-container-lowest z-50 sticky top-0 flex justify-between items-center px-gutter max-w-container-max mx-auto w-full">
+<div class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed-dim">
+            AuraFitness
+        </div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary cursor-pointer transition-opacity active:opacity-70" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-secondary cursor-pointer transition-opacity active:opacity-70" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden flex-shrink-0">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A close up, well-lit, professional headshot of an individual, serving as a user profile photo. The lighting is soft and flattering, suitable for a minimalist app interface. Neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIhbMNkxbuo2GNuUFMxPZr3vdaM5GsBOkCd62VCm4cE2Cw5_Iiypruc_r8-uOVGFyc-Tw3gPWVjocN8zaqcjKMxNuwiUqbpCZCIH3J7gB_SDx6Tpm80DgcJrx4p1ivsXpcjXweywc-_qpWrAuQfyPMZEvcQ9AND-srwJzOfMDs1NIaJSDsInkrl75SNr1sgVYjSkviUhO0czUM6ezcndCN6DQzMBGae4DuSK-B_P0tcsxcfg3HYBQb"/>
+</div>
+</div>
+</header>
+<!-- BottomNavBar (Mobile Fallback for Nav) - Simplified for canvas priority -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface-container-lowest shadow-[0_-4px_20px_rgba(0,0,0,0.04)] z-50 flex justify-around items-center h-16 border-t-0">
+<div class="flex flex-col items-center justify-center w-full h-full text-secondary hover:text-primary transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center w-full h-full text-secondary hover:text-primary transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-xl" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-sm text-label-sm mt-1">Training</span>
+</div>
+<div class="flex flex-col items-center justify-center w-full h-full text-secondary hover:text-primary transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-xl" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-sm text-label-sm mt-1">Recipes</span>
+</div>
+<div class="flex flex-col items-center justify-center w-full h-full text-primary pb-1 cursor-pointer">
+<span class="material-symbols-outlined text-xl" data-icon="shopping_cart" data-weight="fill" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+<span class="font-label-sm text-label-sm mt-1 font-bold">Shopping List</span>
+</div>
+</nav>
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex bg-surface dark:bg-surface-dim h-screen w-64 fixed left-0 top-0 bg-surface-container-low flex flex-col h-full py-xl z-40">
+<div class="px-lg mb-xl">
+<div class="text-headline-md font-headline-md font-bold text-primary mb-lg">
+                AuraFitness
+            </div>
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden flex-shrink-0">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A clean, modern headshot of a person, used as a user profile avatar. Soft, bright lighting matching a minimalist app design, neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1xpN2jL01tjCnaQMTrW13ug9XDWNqr5LS9o81NTCYh7FuTkmXbBgBDRARHyrTnOEZU_GGU-vZszjGlri0iMLr_LHwfnFsVUzw5plhDzgikNKbmTzgmgMJDGFmDCRMsCLNvSNqWL0XBAwvJXxWZnfeMEGRgxL61Lq8iWawpbichIMq2-3jvRuzXNIZtloahqApiCFs6VkOo_Xf6OoWQwODVdpeJGMxzIOcvg0Il6zAPWLvYTI1qe2-"/>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Alex Rivera</div>
+<div class="font-label-sm text-label-sm text-secondary">Elite Member</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-sm">
+<div class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</div>
+<div class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</div>
+<div class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-md text-label-md">Recipes</span>
+</div>
+<div class="group flex items-center gap-md py-md px-lg cursor-pointer text-primary font-bold border-l-2 border-primary pl-4 bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="shopping_cart" data-weight="fill" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+<span class="font-label-md text-label-md">Shopping List</span>
+</div>
+</nav>
+<div class="px-lg mt-auto flex flex-col gap-sm">
+<button class="w-full bg-primary text-on-primary rounded-lg py-sm font-label-md text-label-md mb-md hover:opacity-90 transition-opacity">
+                Start Workout
+            </button>
+<div class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</div>
+<div class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="font-label-md text-label-md">Support</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-md md:p-xl custom-scrollbar overflow-y-auto mb-16 md:mb-0">
+<div class="max-w-container-max mx-auto">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-xl gap-md">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">One-Week Shopping Plan</h1>
+<p class="font-body-md text-body-md text-secondary">Organized for your current meal plan.</p>
+</div>
+<div class="flex gap-sm w-full md:w-auto">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-xs px-md py-sm rounded-lg border border-surface-variant text-primary font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="delete_outline">delete_outline</span>
+                        Clear All
+                    </button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-xs px-md py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+<span class="material-symbols-outlined text-sm" data-icon="print">print</span>
+                        Print
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout for Departments -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Produce -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-container-high">
+<div class="flex items-center gap-sm mb-md pb-sm border-b border-surface-container-high">
+<div class="w-8 h-8 rounded-full bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]" data-icon="nutrition">nutrition</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface text-[18px]">Produce</h2>
+</div>
+<ul class="flex flex-col gap-sm">
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item1" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item1">Spinach (2 bags)</label>
+</li>
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item2" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item2">Avocados (4)</label>
+</li>
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item3" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item3">Sweet Potatoes (3 lbs)</label>
+</li>
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item4" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item4">Bell Peppers (Mixed)</label>
+</li>
+</ul>
+</div>
+<!-- Protein -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-container-high">
+<div class="flex items-center gap-sm mb-md pb-sm border-b border-surface-container-high">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]" data-icon="set_meal">set_meal</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface text-[18px]">Protein</h2>
+</div>
+<ul class="flex flex-col gap-sm">
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item5" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item5">Chicken Breast (2 lbs)</label>
+</li>
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item6" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item6">Salmon Fillets (2)</label>
+</li>
+<li class="flex items-center gap-md">
+<input checked="" class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item7" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item7">Eggs (1 dozen)</label>
+</li>
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item8" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item8">Greek Yogurt (Plain, 32oz)</label>
+</li>
+</ul>
+</div>
+<!-- Pantry -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-container-high">
+<div class="flex items-center gap-sm mb-md pb-sm border-b border-surface-container-high">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]" data-icon="kitchen">kitchen</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface text-[18px]">Pantry</h2>
+</div>
+<ul class="flex flex-col gap-sm">
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item9" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item9">Brown Rice (1 lb)</label>
+</li>
+<li class="flex items-center gap-md">
+<input checked="" class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item10" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item10">Olive Oil</label>
+</li>
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item11" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item11">Almonds (Unsalted)</label>
+</li>
+<li class="flex items-center gap-md">
+<input class="strikethrough-checked w-5 h-5 rounded border-surface-variant text-primary focus:ring-primary focus:ring-opacity-50 cursor-pointer" id="item12" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none transition-colors" for="item12">Quinoa</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+</body></html>

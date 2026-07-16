@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recipes - AuraFitness</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#615e5a",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#1d1b19",
+                        "on-primary-fixed": "#390b00",
+                        "tertiary-fixed-dim": "#cac6c1",
+                        "inverse-primary": "#ffb59e",
+                        "on-primary-fixed-variant": "#7a2f15",
+                        "surface-container": "#f0eded",
+                        "inverse-surface": "#313030",
+                        "surface-variant": "#e5e2e1",
+                        "surface-dim": "#dcd9d9",
+                        "on-surface": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#474745",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#95918d",
+                        "secondary-fixed-dim": "#c8c6c3",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary-fixed": "#e7e2dd",
+                        "outline": "#88726c",
+                        "on-secondary-fixed": "#1c1c1a",
+                        "outline-variant": "#dbc1b9",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1c1b1b",
+                        "on-surface-variant": "#55433d",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#99462a",
+                        "surface": "#fcf9f8",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-container": "#636260",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#ffdbd0",
+                        "secondary": "#5f5e5c",
+                        "primary-fixed-dim": "#ffb59e",
+                        "on-tertiary-container": "#2c2a27",
+                        "primary-container": "#d97757",
+                        "on-tertiary-fixed-variant": "#494643",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-container": "#e2dfdc",
+                        "primary": "#99462a",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-primary-container": "#541400",
+                        "surface-container-low": "#f6f3f2",
+                        "secondary-fixed": "#e5e2df"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "xxl": "80px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "container-max": "1120px",
+                        "xl": "48px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #fcf9f8; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col md:flex-row">
+<!-- Shared Component: SideNavBar (Desktop) -->
+<nav class="hidden md:flex h-screen w-64 fixed left-0 top-0 bg-surface flex-col h-full py-xl z-50 border-r border-surface-container-high">
+<div class="px-lg mb-xl">
+<span class="text-headline-md font-headline-md font-bold text-primary">AuraFitness</span>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-sm">
+<!-- Dashboard (Inactive) -->
+<li>
+<a class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<!-- Training (Inactive) -->
+<li>
+<a class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</a>
+</li>
+<!-- Recipes (ACTIVE) -->
+<li>
+<a class="group flex items-center gap-md py-md px-lg cursor-pointer text-primary font-bold border-l-2 border-primary pl-4 hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">restaurant_menu</span>
+<span class="font-label-md text-label-md">Recipes</span>
+</a>
+</li>
+<!-- Shopping List (Inactive) -->
+<li>
+<a class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+<span class="font-label-md text-label-md">Shopping List</span>
+</a>
+</li>
+</ul>
+</div>
+<div class="px-lg mt-auto">
+<div class="mb-lg p-md rounded-xl bg-surface-container-low flex items-center gap-md">
+<img alt="User profile" class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="A minimalist, high-key portrait of a fit individual with a calm, professional demeanor. Shot in a bright studio with airy lighting, reflecting a clean, sophisticated aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgsqF2dZP9Mc95gtNvTqNg8lcxuBEfXLoS3koZrWWREKSaq8Il_HhHIxm46-kBI0iErWDHUUtQ8TquyWg7DZntrfLmyC2J23HmmO2pDyv4IoLhb85YzND1_RgT9y814ACY_6E-1IovOGHHuvFU_W-ViSjiqgJDm5q8pzgG2imZGNzO1B4S2cH9Nlxg8OVzGAn9o2Zodcx3DdiUV-NDbEwyCgevkMA3nWo6AbFdlHSq4FeifVdCIqfG"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Alex Rivera</p>
+<p class="font-label-sm text-label-sm text-secondary">Elite Member</p>
+</div>
+</div>
+<button class="w-full mb-xl bg-primary text-on-primary font-label-md text-label-md py-md rounded-lg hover:opacity-90 transition-opacity">
+                Start Workout
+            </button>
+<ul class="space-y-sm">
+<li>
+<a class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+<li>
+<a class="group flex items-center gap-md py-md px-lg cursor-pointer text-secondary hover:text-primary pl-4 transition-all hover:bg-surface-container-high duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- BottomNavBar (Mobile Responsive Pivot) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface-container-lowest shadow-[0_-4px_20px_rgba(0,0,0,0.04)] z-50 flex justify-around items-center h-16 px-md">
+<a class="flex flex-col items-center gap-xs text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">fitness_center</span>
+<span class="font-label-sm text-label-sm">Training</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">restaurant_menu</span>
+<span class="font-label-sm text-label-sm font-bold">Recipes</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">shopping_cart</span>
+<span class="font-label-sm text-label-sm">List</span>
+</a>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 pb-24 md:pb-0">
+<div class="max-w-container-max mx-auto px-gutter py-xl md:py-xxl">
+<!-- Page Header -->
+<header class="mb-xl md:mb-xxl flex justify-between items-end">
+<div>
+<h1 class="font-display text-display text-on-surface tracking-tight mb-sm">Recipes</h1>
+<p class="font-body-lg text-body-lg text-secondary">Nourish your body with curated, performance-focused meals.</p>
+</div>
+<div class="hidden md:flex gap-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input class="pl-xl pr-md py-sm rounded-full border border-surface-variant bg-surface-container-lowest font-label-md text-label-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-64 transition-all" placeholder="Search recipes..." type="text"/>
+</div>
+<button class="bg-surface-container-lowest border border-surface-variant text-primary p-sm rounded-full hover:bg-surface-container-low transition-colors flex items-center justify-center h-10 w-10">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</header>
+<!-- Breakfast Category -->
+<section class="mb-xxl">
+<div class="flex items-center justify-between mb-lg border-b border-surface-variant pb-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">Breakfast</h2>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container transition-colors flex items-center gap-xs" href="#">
+                        View all <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Overnight Oats" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A pristine, minimalist shot of an overnight oats jar layered with chia, almond milk, and fresh blueberries. High-key lighting, bright white marble surface, expansive whitespace, calm and airy aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEX_YMUqtBV9HzQ4iLxtYlDX_hTR5xJETZD4q56rSYb-ZB2oqzX0NFQWYNhJyc4ghcfT94KwQaZtfbnXwsqJNWuxyO0kFZ7OTMkN6Hl0p1Cx_LY3bH9ZCEC6T-U_N9pD69daX_XbLOB_C-6SNtQ4gHpBzfNK3vWsejZm2vf1Fx572v7Sq4BoU5N8q2kY35LVnBIWbyWcfdPdgACdNSpGdOsL7rM6cbhzC79n762zcXNZNDNxR57rsi"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">5m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">High Protein</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Berry Chia Overnight Oats</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">A quick, refreshing start to fuel morning training sessions.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Avocado Toast" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Minimalist avocado toast on a rustic sourdough slice, placed on a vast white ceramic plate. Surrounded by pure white negative space, soft natural light creates a sophisticated, bleached aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6oxxTNOr-Zxbp8cBQN4Xlf0tplA6dJ_-kV0WNnceqB1v3dmMT9rN7ZtThg1PnJCgpQRjfW2mc9fdBvt-kWcbA17oplW-p4_R5jyQdz5vqUgF-PQ2GYMBIoxh5PjUToPGegh38kyTACquI78rtge0qX4g7tpsQ8vO1VhRktjYtybdzwaOp23vsX2TVLvuWdA7YVLFC4DBagdZOz2mVfnL01PznuB501YKcgXfwY6M75uPHr4rtvHIJ"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">10m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Vegan</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Elevated Avocado Toast</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Healthy fats and complex carbs for sustained morning energy.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Smoothie Bowl" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sleek, modern protein smoothie bowl in a matte white bowl. The surface is entirely white, brightly lit to emphasize the vibrant green of the spinach and matcha. Calm, clean, professional photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtEPYSK4t-rE1b6Wm21iUINpq6ANb9BnwvnWy6-5Kq_-edrwdK68KRUnOJkj7Z194N-kzA8yFlrJTUv8mbKwOoN3arPvFN-R6aXEwEoFR-K9O1iugElN4pXUZnovb9XoM7OVeiOwbbx3ZHcEhUZWUnSLMTqUxzhgDHKfFu9v8e4gIGXE0w0BdqaQnr5D0aJmrCFtK7kF28sVfGHFePtKpQHdxVQmzEPjbOhUB_rH3CC-FFz2hpj4BE"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">5m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Post-Workout</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Matcha Green Smoothie Bowl</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Antioxidant-rich recovery meal with a clean flavor profile.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Poached Eggs" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Perfectly poached eggs on a minimalist white plate, resting on a bright, airy countertop. High-key exposure, expansive whitespace, creating a sense of calm and precise culinary execution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-g-_wCkI6XhoBsDKBd_oASpOfdMUXyKnkNabp4zJpsd_yicdTJ9JTLs3ITtk0rLvksO6h6_5AgMKecJbXM-PtS48Pu2y678WUuNduY75ychTsv23tjhIBnZ8XpvXOVAXNlwKVIzRO5HSG9pmi4osdkKgFdWsZmVd6QyQY_e4Vul7AR9-oYsFidqKmEB6PnnI6tgn5bnCDaPTFXGcjbNq29TVYWEcm9ZrQoNABazsnimZKiMUpvOjs"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">15m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Low Carb</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Classic Poached Eggs</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Simple, protein-dense classic prepared with precision.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Lunch Category -->
+<section class="mb-xxl">
+<div class="flex items-center justify-between mb-lg border-b border-surface-variant pb-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">Lunch</h2>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container transition-colors flex items-center gap-xs" href="#">
+                        View all <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Grain Bowl" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A minimalist grain bowl featuring quinoa, roasted chickpeas, and tahini dressing. Shot from directly above on a pure white, seamless background. The aesthetic is high-key, airy, and focuses on simple, healthy ingredients." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtdOsbUBx81HzZWfOyol-0WEXN5bu2DCUrocTfxtaaWsm9D-35OZWxqMlvD6x1fQ9erTOQXaZP1xcB2lmZZs5pFuMsVFN2smYs3CgIlIfmb5X6bn7CV3kSNK1tDR3YN0yMSipII32iIXHYAqG2OaU75HAh709Z9jdMa6kP-Z4uqxT6dWauDTj6svuLNURNE12mQJNFsz-iIQXwubd79mWbCq6kT4e8ap7AoDXRU7rNlmERW2l9Mn20"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">20m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">High Fiber</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Roasted Chickpea Grain Bowl</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">A balanced macro profile to keep you focused through the afternoon.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Chicken Wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, elegant chicken salad wrap sliced in half, resting on minimalist white parchment paper. The setting is bright and spacious, utilizing a bleached aesthetic to evoke purity and health." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLJkMHUZM8TrL_fhKbrtSJJ_l5-3m8HJer5zXAdaX1a0waNn1JrUH1dr3-k0soFnZfZqYgsIwUsJ9TJ1OLONsuKNvahpkwNpdF73mnq2R3iJihmu7O9GtDVGYftKVH9ckZ_3MjcVojXn5dk2OMMIIzzKQT2Xbj-dHoEb8i6iqQxKRj6sFw3ALHZ0pCN4OZV9sfUg0ctTj_RUc-1IjcUrYhCjE_P-AycApVxkfH2qirRBynjX9zC1iD"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">10m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Meal Prep</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Grilled Chicken Lettuce Wrap</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Light, crisp, and high in lean protein for optimal recovery.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Lentil Soup" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sophisticated bowl of lentil soup with a drizzle of olive oil, isolated on a stark white surface. The minimalist composition and airy lighting highlight the deep textures of the soup against the clean background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiOmbHFzRG9A_f7LZhX0t9MbDQer-2Klk922e54a9zYBJiFvdmo042AHxsul8QB-22wmwVa5md4N8k2NdzmC_SB4KTM77e6gcdHDrP448nnDjAG0rSrX7dllXAYN_ixVc4KJw538f8CG1bfS1rEoD0rtjXgYUkOBOyUV7EJ96eMcTLcx6AIcH6FfBTksCuEg1BnffDWJVWRb0sj2wvNs_tuFn4Pvc03PLsaKv6lAnSUyYtVt7XBwDK"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">30m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Plant-Based</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Spiced Lentil Detox Soup</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Warm, comforting, and packed with complex carbohydrates.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Nicoise Salad" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A precise, artful arrangement of seared tuna niçoise salad components on a large white plate. The image uses extreme high-key lighting, creating a calm, minimalist vibe with vast amounts of negative space." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrD9b2Ik0aUopS9X5xZSkS996zdZPbAgddw8PG9kEB1JHm6uL5RZdLq3HfOzThgVO-cTZG-R7-Dupxn2mgBqHDM11HERQcoXm-SLZdMrb63buEsPKMrx85uAmce4Q4iTSEnt5LXYFymsxq-AiwfnWj8L_uGvmegWUfCL4i29I7UXsDHTeANc-bvBhGuEyKwZwO2VQSOWCBCDTDnkkgmmWl7WRdPh2Jyo8ENtN2ZhFPm1nS-_sK7uHj"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">25m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Keto Friendly</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Deconstructed Niçoise Salad</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">A premium, nutrient-dense lunch prioritizing omega-3s.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Dinner Category -->
+<section class="mb-xxl">
+<div class="flex items-center justify-between mb-lg border-b border-surface-variant pb-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">Dinner</h2>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container transition-colors flex items-center gap-xs" href="#">
+                        View all <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Baked Salmon" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A minimalist presentation of baked salmon with a side of steamed asparagus on a flawless white ceramic plate. The background is pure, high-key white, producing an airy, sophisticated, and exceptionally clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYzdoXXL8Dcbd9CV3Yrn1BV3kzgx1qEmfshcVFCOP0fdwP3R1zZlxYLA086Lo-Vw0vO44_inW3fMQUvZ3T7TYZdscZ1LPOrgBmcZ58abaXuIxA8lej7BHsNzdSKkeTGTeK9I9nPBmYJMjDgo1K-eeiqK0u_S-IAG76MVOrTnzdTAjKoDdq21o-a8DiEOFXTDvMCAU8uKtnsRuYu3HoSMBjB_zfmRngnGuQgIiCq_A_R_BSIcXTjUlS"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">20m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">High Protein</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Herb-Crusted Baked Salmon</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Essential fatty acids and lean protein for muscle repair overnight.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Sweet Potato Bowl" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A meticulously arranged sweet potato and black bean bowl on a stark white background. The high-key lighting eliminates harsh shadows, emphasizing the calm minimalism and fresh, vibrant ingredients of the dish." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlyF1Ntvgw8v2m7d80xQY2E9_iQAdqClMxXbsnL33PE7dbNdEGqRMLUhLc6P-ilEmaZQEm8rF7orTNlmRml26dpcMLZ0vAOHk6VhroNZdQ_MOVvJd3qkDCKbNRg6HA2-A3jne5A_1ivvv4W6ffrTJg0Jm_X50Kq1bpi2XgDfwO4GGhlJV6HlShr_oEdfnJh0PrMZ5qs5RITOHSb-Lksfw69FSlXggaAUtTGN_bpR9LoPmh3ON7O-HB"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">35m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Plant-Based</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Roasted Sweet Potato Hash</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Slow-digesting carbs to replenish glycogen stores gracefully.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Turkey Meatballs" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A lean turkey meatball dish served over zucchini noodles in a minimal white bowl. Set against a vast, bleached white backdrop. The soft, diffuse lighting creates an atmosphere of clarity and focused nutrition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0yrD2UIyL1tdfrAohajeHywMonogRFaimm3fMh9U5OJp9XIK0BWxO42c8UGEv5WuRIg-fmEJFZAf4vCKyhXGQLvGN_rAufENHGtVbClXeYbhfy6AbmQv881rgEpzM2X7qqAqbNPhkBPsxDjk6A1C2xVi9l1h6dUxPyDxeKjAnJ5meM9GDWA1UxL_h95mKsJrVb_hGN2tOmhh-KCi7m34dfjJ6eYCi3izN1kGQ2igthK7Fae6pUmSI"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">40m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Low Carb</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Turkey Meatballs & Zoodles</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">A comforting, volume-heavy meal that remains light and digestible.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Tofu Stir-fry" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, modern presentation of a tofu stir-fry with bright snap peas, set on an immaculate white surface. The image relies on high-key values and extreme whitespace to convey a professional, calm aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0Kxzz4X5s8LAHPCWMnNXmoxTvO3QbM13SLxZm3oA1sT-fIojU60T0kOWMJqHyKbT_oA429BiCJ6HCGuf3RJk44SRSySSwPmzcMJO_7Uv4qPeMZL2PbretBtGowuBowaaYJFFp4CUzW7Om06aFHjBTep-fMaOBy8wbE1R5qj9v1-AOr_MW-I-c9rd9KuHttthFctmGFYN_N0LaDVuvQfIUWvms0pfCalG8vIG9B3ANI_CLJmyNNFCY"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">15m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Quick Prep</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Crispy Tofu & Snap Pea Stir-fry</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Fast, nutrient-dense, and elegantly simple dinner solution.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Snacks Category -->
+<section>
+<div class="flex items-center justify-between mb-lg border-b border-surface-variant pb-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">Snacks & Shakes</h2>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container transition-colors flex items-center gap-xs" href="#">
+                        View all <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Energy Bites" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A minimalist composition of energy bites arranged symmetrically on a pristine white marble slab. The lighting is incredibly soft and high-key, creating an airy, refined atmosphere with abundant negative space." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3Y8UPywGzp3UdckFhUVDg24oiYZuMXUjlAdWcC0K3f39QuJGkV4aI5z6LLQLxddGuS2h9CPQjkQIu94IJYnEl9x8N3eCaunXL5NgP8hLEz2H2Zba65XwmQXILJAOdFrNsc_S7CzuCHzLJK5vUmNfyNqDSJNxA2R_AA1-8rKRaLS6Rvz8OJ3HZFNJ712ZgAUl0RBacs3ItVWFw72eivIRMJjxbXlYu1_7L6V6G6haW6meeVPc50qGb"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">10m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Pre-Workout</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Almond Butter Energy Bites</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Bite-sized fuel for immediate, sustained training energy.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Protein Shake" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sleek, modern protein shake in a clear glass, isolated against a completely white, highly illuminated background. The aesthetic is clinical yet inviting, utilizing a bleached style to convey purity and fitness focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtPcXBzhfzVqTheHZhknSBlBijaSkiCu7GTv-zEvxq92gqeXC3tR18dSqG3zIQBQ1fA-ShHA5UBqxCpp0VgH1CwFp4TV2BcKGhkzQUPab4OrMbSqyQLwRHI1xH-QrcGKPrHqT85jPs_RlIj4L7tHm3Vx3yg8atDFT6gq3VfpLk9rKymHtcmgVF0o0nrzXR_dl9lk56Cy1NSSjgu0WqrsMraV8gYjK_frVL4auf8zOF_x5YiZjgIl6P"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">2m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Post-Workout</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Vanilla Isolate Recovery Shake</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Rapid absorption protein formulation for immediate muscle repair.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Greek Yogurt" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A simple bowl of Greek yogurt topped with a few precision-placed almonds, resting on an expansive white table. The high-key exposure and minimalist framing evoke a sense of calm and clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCm163gpqE1Z3g8O56YKVtyT6H2-0HddqvkPm_RW21W8NzXHODrtNn671u1dgNPXPqzNLATJ5ZPZmjiDDYZ60Yxb0_Eis-d2klJWCArs67nbw0NAsJdgUVUwGVQILe325TNTx17OlWvxzzELsHW3G2V8qbo0tD2mLRSdFCRflP68vo_NWseNh_8lnla1-HhuxVAxzcj668IIBQjsXFKEJL2PZ8MJ-gML1ZmRWdLmg2NbntOKgyFXiS4"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">3m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">High Protein</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Greek Yogurt & Toasted Almonds</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">Casein-rich nightcap to support recovery while sleeping.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="relative h-48 overflow-hidden bg-surface-container-low">
+<img alt="Apple and Peanut Butter" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Minimalist presentation of crisp apple slices beside a small, stark white ramekin of peanut butter. The entire scene is drenched in soft, high-key white light, emphasizing a bleached, airy, and professional aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT9eg3w4GxSsYKi7ln2mEm0Dg8AlIQH7Z96EDUtfJNvX7bbEbY74aLYKMdHR2wD5qG4AFmz0LDJaeeD9QckHooRqx62XbgsnalfwpjBRI2UOkjAmFltbJQp66KgVjb4vQpLypg5TIT8oFxcHC6GyXCqt8q4hU7gzMeJHnRoQfBnJgLC2AEvNDabtGIwUW9I-Q2M62KABqXQmbut5mTuvOOBvgZkt7U4m32wTSycS8ve3tBsG6TVpSq"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="font-label-sm text-label-sm text-secondary">2m</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Quick Snack</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-xs group-hover:text-primary transition-colors">Crisp Apple & Peanut Butter</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-auto">A timeless, balanced snack providing quick carbs and lasting fats.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>
