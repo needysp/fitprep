@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+/* Aura design tokens (stitch_base_design/aura/DESIGN.md; the mocks win on conflicts) */
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-surface: #fbf9f7;
+  --color-parchment: #f4f0eb;
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #6b6b6b;
+  --color-line: #eae5e0;
+  --color-primary: #d97757;
+  --color-primary-strong: #99462a;
+  --color-primary-tint: #fff1e9;
+  --color-danger: #ba1a1a;
+}
+
+@layer base {
+  body {
+    @apply bg-surface font-sans text-ink antialiased;
+  }
+}
