@@ -287,8 +287,8 @@ user's most recent `WorkoutSet`s for that exercise and pre-populate the form.
 - `GET /api/shopping-list?week_start=` (aggregated by department + check state),
   `PUT /api/shopping-list/check?week_start=` (toggle an item by `ingredient_item_id`),
   `POST /api/shopping-list/clear?week_start=` (Clear All — uncheck everything)
-- `GET /api/dashboard` (last session summary, workouts + total time this week, bodyweight trend,
-  today's planned meals)
+- `GET /api/dashboard` (in-progress session, last finished session, this week's workouts +
+  minutes + volume + per-weekday activity, bodyweight trend, today's planned meals with macros)
 
 All endpoints except `/api/auth/*` require an authenticated session and operate on the current user.
 
@@ -356,10 +356,15 @@ before the next starts.
    servings, department grouping, check-off + Clear All persistence, print view, and per-day macro totals.
 
 **Slice 4 — Dashboard + settings**
-10. Backend: `routers/dashboard.py` summary endpoint. Frontend: `DashboardPage` (last session,
-    weekly activity, bodyweight trend, today's planned meals — **no** nutrition-streak card until
-    meal logging exists) as the post-login home; `SettingsPage` to edit the profile.
+10. Backend: `routers/dashboard.py` summary endpoint — reuses `session_summary_fields` from
+    `workouts.py` so the dashboard's duration/volume can't drift from the training pages.
+    Frontend: `DashboardPage` (resume-in-progress banner, last session, weekly activity bars,
+    bodyweight trend sparkline, today's planned meals — **no** nutrition-streak card until meal
+    logging exists) as the post-login home; `SettingsPage` to edit the profile, reachable from the
+    sidebar (desktop) and the top bar (mobile).
     → **Verify:** dashboard numbers match the underlying pages; profile edits persist.
+    ✔ Done — the e2e cross-checks every dashboard number against the endpoint the corresponding
+    page uses, and covers the empty state for a brand-new user.
 
 **Slice 5 — Deployment + README polish**
 11. Prod build: FastAPI serves the built frontend (single origin), SQLite file on a volume,

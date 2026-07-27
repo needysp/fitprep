@@ -414,6 +414,59 @@ class ShoppingCheckIn(BaseModel):
     checked: bool
 
 
+# --- Dashboard ---
+
+
+class DashboardSession(BaseModel):
+    id: int
+    date: date_type
+    routine_name: str | None
+    duration_minutes: int | None
+    total_volume_kg: float
+    total_sets: int
+
+
+class DashboardDay(BaseModel):
+    day_of_week: int
+    workouts: int
+    minutes: int
+    volume_kg: float
+
+
+class DashboardWeek(BaseModel):
+    week_start: date_type
+    workouts: int
+    total_minutes: int
+    total_volume_kg: float
+    # Monday-first. Volume gives the bar chart something with real variation —
+    # workout counts are effectively 0 or 1 and would render as on/off blocks.
+    per_day: list[DashboardDay]
+
+
+class DashboardBodyweight(BaseModel):
+    current: float | None
+    change_kg: float | None  # vs the earliest entry shown
+    entries: list[BodyweightOut]
+
+
+class DashboardToday(BaseModel):
+    date: date_type
+    day_of_week: int
+    meals: list[MealPlanItemOut]
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+
+
+class DashboardOut(BaseModel):
+    active_session_id: int | None
+    last_session: DashboardSession | None
+    week: DashboardWeek
+    bodyweight: DashboardBodyweight
+    today: DashboardToday
+
+
 class PrefillOut(BaseModel):
     """Last time this exercise was trained, to pre-populate the log form."""
 

@@ -34,8 +34,19 @@ def complete_onboarding(
 
     profile = UserProfile(user_id=user.id, **data.model_dump(exclude={"weight_kg"}))
     db.add(profile)
-    # The profile stores no weight; the starting weight becomes the first log entry.
-    db.add(BodyweightEntry(user_id=user.id, date=date.today(), weight_kg=data.weight_kg))
+
+    # The profile stores no weight; the starting weight becomes the first log
+    # entry. Update rather than insert if today already has one (only one entry
+    # per day is allowed, and bodyweight can be logged before onboarding).
+    today = db.scalar(
+        select(BodyweightEntry).where(
+            BodyweightEntry.user_id == user.id, BodyweightEntry.date == date.today()
+        )
+    )
+    if today is None:
+        db.add(BodyweightEntry(user_id=user.id, date=date.today(), weight_kg=data.weight_kg))
+    else:
+        today.weight_kg = data.weight_kg
     db.commit()
     db.refresh(profile)
     return profile

@@ -11,6 +11,7 @@ import { OnboardingPage } from './pages/OnboardingPage'
 import { RecipeDetailPage } from './pages/RecipeDetailPage'
 import { RecipeEditorPage } from './pages/RecipeEditorPage'
 import { RecipesPage } from './pages/RecipesPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { ShoppingListPage } from './pages/ShoppingListPage'
 import { RoutinesPage } from './pages/RoutinesPage'
 import { SessionPage } from './pages/SessionPage'
@@ -76,6 +77,7 @@ export default function App() {
           <Route path="/recipes/:id" element={<RecipeDetailPage />} />
           <Route path="/recipes/:id/edit" element={<RecipeEditorPage />} />
           <Route path="/shopping" element={<ShoppingListPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route
             path="/admin"
             element={

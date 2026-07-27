@@ -3,6 +3,7 @@ import {
   Dumbbell,
   LayoutDashboard,
   LogOut,
+  Settings,
   ShieldCheck,
   ShoppingCart,
   UtensilsCrossed,
@@ -66,6 +67,17 @@ export function AppLayout() {
             </NavLink>
           ))}
         </nav>
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              isActive ? 'text-primary' : 'text-ink-soft hover:bg-primary-tint hover:text-ink'
+            }`
+          }
+        >
+          <Settings className="h-5 w-5" />
+          Settings
+        </NavLink>
         <button
           onClick={() => void logout()}
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-primary-tint hover:text-ink"
@@ -78,13 +90,18 @@ export function AppLayout() {
       {/* Mobile top bar */}
       <header className="flex items-center justify-between border-b border-line bg-parchment px-4 py-3 md:hidden">
         <div className="text-lg font-semibold tracking-tight text-primary-strong">FitPrep</div>
-        <button
-          onClick={() => void logout()}
-          aria-label="Sign out"
-          className="p-1 text-ink-soft"
-        >
-          <LogOut className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <NavLink to="/settings" aria-label="Settings" className="p-1.5 text-ink-soft">
+            <Settings className="h-5 w-5" />
+          </NavLink>
+          <button
+            onClick={() => void logout()}
+            aria-label="Sign out"
+            className="p-1.5 text-ink-soft"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
+        </div>
       </header>
 
       {/* Content */}

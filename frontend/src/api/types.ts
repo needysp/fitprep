@@ -243,6 +243,44 @@ export interface MealPlan {
   average_protein_g: number
 }
 
+export interface Dashboard {
+  active_session_id: number | null
+  last_session: {
+    id: number
+    date: string
+    routine_name: string | null
+    duration_minutes: number | null
+    total_volume_kg: number
+    total_sets: number
+  } | null
+  week: {
+    week_start: string
+    workouts: number
+    total_minutes: number
+    total_volume_kg: number
+    per_day: {
+      day_of_week: number
+      workouts: number
+      minutes: number
+      volume_kg: number
+    }[]
+  }
+  bodyweight: {
+    current: number | null
+    change_kg: number | null
+    entries: BodyweightEntry[]
+  }
+  today: {
+    date: string
+    day_of_week: number
+    meals: MealPlanItem[]
+    calories: number
+    protein_g: number
+    carbs_g: number
+    fat_g: number
+  }
+}
+
 export interface ShoppingItem {
   ingredient_item_id: number
   name: string

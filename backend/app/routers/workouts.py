@@ -54,7 +54,7 @@ def estimated_1rm(weight_kg: float, reps: int) -> float:
     return round(weight_kg * (1 + reps / 30), 1)
 
 
-def _summary_fields(session: WorkoutSession) -> dict:
+def session_summary_fields(session: WorkoutSession) -> dict:
     sets = [s for log in session.logs for s in log.sets]
     duration = None
     if session.started_at and session.finished_at:
@@ -75,7 +75,7 @@ def _summary_fields(session: WorkoutSession) -> dict:
 
 def _detail(session: WorkoutSession, user: User) -> SessionDetailOut:
     return SessionDetailOut(
-        **_summary_fields(session),
+        **session_summary_fields(session),
         logs=[
             ExerciseLogOut(
                 id=log.id,
@@ -159,7 +159,7 @@ def list_sessions(
         .limit(min(limit, 200))
         .options(*_SESSION_LOADERS, selectinload(WorkoutSession.routine))
     ).all()
-    return [SessionSummaryOut(**_summary_fields(s)) for s in sessions]
+    return [SessionSummaryOut(**session_summary_fields(s)) for s in sessions]
 
 
 @router.get("/api/sessions/active", response_model=SessionDetailOut | None)
