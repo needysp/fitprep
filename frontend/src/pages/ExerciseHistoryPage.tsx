@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ChevronLeft, ExternalLink } from 'lucide-react'
+import { ChevronLeft, Info } from 'lucide-react'
 import { api } from '../api/client'
 import type { ExerciseHistory } from '../api/types'
-import { EmptyState, ErrorNote, Tag, cardCls, formatDate } from '../components/ui'
+import { ExerciseInfoModal } from '../components/ExerciseInfoModal'
+import { Button, EmptyState, ErrorNote, Tag, cardCls, formatDate } from '../components/ui'
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -20,6 +21,7 @@ export function ExerciseHistoryPage() {
   const [history, setHistory] = useState<ExerciseHistory | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showInfo, setShowInfo] = useState(false)
 
   useEffect(() => {
     api
@@ -47,17 +49,20 @@ export function ExerciseHistoryPage() {
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
           {history.exercise.name}
         </h1>
-        {history.exercise.guide_url && (
-          <a
-            href={history.exercise.guide_url}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center gap-1 text-sm text-primary"
-          >
-            <ExternalLink className="h-4 w-4" /> Guide
-          </a>
-        )}
+        <Button variant="secondary" onClick={() => setShowInfo(true)}>
+          <span className="flex items-center gap-2">
+            <Info className="h-4 w-4" /> How to
+          </span>
+        </Button>
       </div>
+
+      {showInfo && (
+        <ExerciseInfoModal
+          exercise={history.exercise}
+          onClose={() => setShowInfo(false)}
+          onSaved={(updated) => setHistory({ ...history, exercise: updated })}
+        />
+      )}
 
       {history.points.length === 0 ? (
         <div className="mt-6">

@@ -81,7 +81,6 @@ def _detail(session: WorkoutSession, user: User) -> SessionDetailOut:
                 id=log.id,
                 exercise_id=log.exercise_id,
                 notes=log.notes,
-                goal=log.goal,
                 exercise=to_out(log.exercise, user),
                 sets=[SetOut.model_validate(s) for s in log.sets],
             )
@@ -227,7 +226,7 @@ def add_log(
     session = _own_session_or_404(session_id, user, db)
     exercise = visible_exercise_or_404(data.exercise_id, user, db)
     log = ExerciseLog(
-        session_id=session.id, exercise_id=exercise.id, notes=data.notes, goal=data.goal
+        session_id=session.id, exercise_id=exercise.id, notes=data.notes
     )
     db.add(log)
     db.commit()
@@ -236,7 +235,6 @@ def add_log(
         id=log.id,
         exercise_id=log.exercise_id,
         notes=log.notes,
-        goal=log.goal,
         exercise=to_out(exercise, user),
         sets=[],
     )
@@ -251,14 +249,12 @@ def update_log(
 ):
     log = _own_log_or_404(log_id, user, db)
     log.notes = data.notes
-    log.goal = data.goal
     db.commit()
     db.refresh(log)
     return ExerciseLogOut(
         id=log.id,
         exercise_id=log.exercise_id,
         notes=log.notes,
-        goal=log.goal,
         exercise=to_out(db.get(Exercise, log.exercise_id), user),
         sets=[SetOut.model_validate(s) for s in log.sets],
     )
@@ -368,7 +364,7 @@ def prefill(
             return PrefillOut(
                 exercise_id=exercise.id,
                 last_session_date=log.session.date,
-                goal=log.goal,
+                notes=log.notes,
                 sets=[
                     PrefillSetOut(
                         set_number=s.set_number, weight_kg=s.weight_kg, reps=s.reps
@@ -415,7 +411,6 @@ def exercise_history(
                 total_volume_kg=round(sum(s.weight_kg * s.reps for s in log.sets), 1),
                 sets=[SetOut.model_validate(s) for s in log.sets],
                 notes=log.notes,
-                goal=log.goal,
             )
         )
         for s in log.sets:

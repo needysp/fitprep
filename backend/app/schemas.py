@@ -101,6 +101,11 @@ class ExerciseBase(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     muscle_group: str = Field(default="", max_length=64)
     guide_url: str = Field(default="", max_length=512)
+    # Own how-to reference, shown in the info overlay while training.
+    target_muscles: str = ""
+    target_muscles_image_url: str = Field(default="", max_length=1024)
+    execution: str = ""  # Haltung & Ausführung
+    execution_image_url: str = Field(default="", max_length=1024)
 
 
 class ExerciseCreate(ExerciseBase):
@@ -178,12 +183,10 @@ class SetOut(BaseModel):
 class ExerciseLogIn(BaseModel):
     exercise_id: int
     notes: str = ""
-    goal: str = ""
 
 
 class ExerciseLogUpdate(BaseModel):
     notes: str = ""
-    goal: str = ""
 
 
 class ExerciseLogOut(BaseModel):
@@ -192,7 +195,6 @@ class ExerciseLogOut(BaseModel):
     id: int
     exercise_id: int
     notes: str
-    goal: str
     exercise: ExerciseOut
     sets: list[SetOut]
 
@@ -241,7 +243,6 @@ class ExerciseHistoryPoint(BaseModel):
     total_volume_kg: float
     sets: list[SetOut]
     notes: str
-    goal: str
 
 
 class ExerciseHistoryOut(BaseModel):
@@ -262,5 +263,6 @@ class PrefillOut(BaseModel):
 
     exercise_id: int
     last_session_date: date_type | None
-    goal: str = ""
+    # Last session's notes, carried forward so they can be reviewed and updated.
+    notes: str = ""
     sets: list[PrefillSetOut] = []

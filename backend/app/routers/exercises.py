@@ -24,6 +24,10 @@ def to_out(exercise: Exercise, user: User) -> ExerciseOut:
         name=exercise.name,
         muscle_group=exercise.muscle_group,
         guide_url=exercise.guide_url,
+        target_muscles=exercise.target_muscles,
+        target_muscles_image_url=exercise.target_muscles_image_url,
+        execution=exercise.execution,
+        execution_image_url=exercise.execution_image_url,
         created_by_user_id=exercise.created_by_user_id,
         is_global=is_global,
         # Own exercises are always editable; global ones only by admins.
@@ -95,8 +99,13 @@ def create_exercise(
 
     exercise = Exercise(
         name=name,
-        muscle_group=data.muscle_group.strip(),
+        # Lowercased so case variants can't split one group into two sections.
+        muscle_group=data.muscle_group.strip().lower(),
         guide_url=data.guide_url.strip(),
+        target_muscles=data.target_muscles.strip(),
+        target_muscles_image_url=data.target_muscles_image_url.strip(),
+        execution=data.execution.strip(),
+        execution_image_url=data.execution_image_url.strip(),
         created_by_user_id=owner_id,
     )
     db.add(exercise)
@@ -121,8 +130,12 @@ def update_exercise(
     _assert_name_free(db, name, exercise.created_by_user_id, exclude_id=exercise.id)
 
     exercise.name = name
-    exercise.muscle_group = data.muscle_group.strip()
+    exercise.muscle_group = data.muscle_group.strip().lower()
     exercise.guide_url = data.guide_url.strip()
+    exercise.target_muscles = data.target_muscles.strip()
+    exercise.target_muscles_image_url = data.target_muscles_image_url.strip()
+    exercise.execution = data.execution.strip()
+    exercise.execution_image_url = data.execution_image_url.strip()
     db.commit()
     db.refresh(exercise)
     return to_out(exercise, user)

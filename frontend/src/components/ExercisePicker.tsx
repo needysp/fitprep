@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Plus, Search, X } from 'lucide-react'
+import { Info, Plus, Search, X } from 'lucide-react'
 import { api, ApiError } from '../api/client'
-import type { Exercise } from '../api/types'
+import type { Exercise, ExerciseInput } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
-import { Button, ErrorNote, Tag, inputCls } from './ui'
+import { ExerciseFields, ExerciseInfoModal, emptyExerciseInput } from './ExerciseInfoModal'
+import { Button, ErrorNote, Tag } from './ui'
 
 /** Modal to pick an exercise, with inline creation when it isn't in the list. */
 export function ExercisePicker({
@@ -21,10 +22,10 @@ export function ExercisePicker({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [creating, setCreating] = useState(false)
-  const [newMuscle, setNewMuscle] = useState('')
-  const [newGuide, setNewGuide] = useState('')
+  const [draft, setDraft] = useState<ExerciseInput>(emptyExerciseInput)
   const [newGlobal, setNewGlobal] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [infoFor, setInfoFor] = useState<Exercise | null>(null)
 
   useEffect(() => {
     api
@@ -50,9 +51,8 @@ export function ExercisePicker({
     setSaving(true)
     try {
       const created = await api.post<Exercise>('/api/exercises', {
+        ...draft,
         name: search.trim(),
-        muscle_group: newMuscle.trim(),
-        guide_url: newGuide.trim(),
         is_global: newGlobal,
       })
       onPick(created)
@@ -110,14 +110,25 @@ export function ExercisePicker({
                     {muscle}
                   </div>
                   {items.map((e) => (
-                    <button
+                    <div
                       key={e.id}
-                      onClick={() => onPick(e)}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-primary-tint"
+                      className="flex items-center gap-1 rounded-lg pr-1 transition-colors hover:bg-primary-tint"
                     >
-                      <span className="flex-1">{e.name}</span>
-                      {!e.is_global && <Tag>Mine</Tag>}
-                    </button>
+                      <button
+                        onClick={() => onPick(e)}
+                        className="flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm"
+                      >
+                        <span className="flex-1">{e.name}</span>
+                        {!e.is_global && <Tag>Mine</Tag>}
+                      </button>
+                      <button
+                        onClick={() => setInfoFor(e)}
+                        aria-label={`Info about ${e.name}`}
+                        className="rounded-lg p-2 text-ink-soft hover:text-primary-strong"
+                      >
+                        <Info className="h-4 w-4" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               ))}
@@ -142,18 +153,11 @@ export function ExercisePicker({
                   ) : (
                     <div className="flex flex-col gap-3 p-1">
                       <p className="text-sm font-medium">Create “{search.trim()}”</p>
-                      <input
-                        value={newMuscle}
-                        onChange={(e) => setNewMuscle(e.target.value)}
-                        placeholder="Muscle group (e.g. chest)"
-                        className={inputCls}
-                      />
-                      <input
-                        value={newGuide}
-                        onChange={(e) => setNewGuide(e.target.value)}
-                        placeholder="Guide link (optional)"
-                        className={inputCls}
-                      />
+                      <p className="text-xs text-ink-soft">
+                        Everything below is optional — you can add the how-to later from the
+                        info overlay.
+                      </p>
+                      <ExerciseFields value={draft} onChange={setDraft} showName={false} />
                       {user?.role === 'admin' && (
                         <label className="flex items-center gap-2 text-sm text-ink-soft">
                           <input
@@ -176,6 +180,16 @@ export function ExercisePicker({
           )}
         </div>
       </div>
+
+      {infoFor && (
+        <ExerciseInfoModal
+          exercise={infoFor}
+          onClose={() => setInfoFor(null)}
+          onSaved={(updated) =>
+            setExercises((list) => list.map((e) => (e.id === updated.id ? updated : e)))
+          }
+        />
+      )}
     </div>
   )
 }

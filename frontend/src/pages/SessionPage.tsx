@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Check, ChevronLeft, ExternalLink, Plus, Trash2, TrendingUp } from 'lucide-react'
+import { Check, ChevronLeft, Info, Plus, Trash2, TrendingUp } from 'lucide-react'
 import { api, ApiError } from '../api/client'
-import type { ExerciseLog, Prefill, SessionDetail } from '../api/types'
+import type { Exercise, ExerciseLog, Prefill, SessionDetail } from '../api/types'
+import { ExerciseInfoModal } from '../components/ExerciseInfoModal'
 import { ExercisePicker } from '../components/ExercisePicker'
+import { NumberStepper } from '../components/NumberStepper'
 import { Button, ErrorNote, Tag, cardCls, formatDate, inputCls } from '../components/ui'
 
 /** One exercise inside the session: previous values, sets, notes and goal. */
@@ -12,17 +14,19 @@ function ExerciseLogCard({
   sessionId,
   onChanged,
   onError,
+  onShowInfo,
 }: {
   log: ExerciseLog
   sessionId: number
   onChanged: () => Promise<void>
   onError: (message: string) => void
+  onShowInfo: (exercise: Exercise) => void
 }) {
   const [prefill, setPrefill] = useState<Prefill | null>(null)
   const [weight, setWeight] = useState('')
   const [reps, setReps] = useState('')
-  const [goal, setGoal] = useState(log.goal)
   const [notes, setNotes] = useState(log.notes)
+  const [notesFromLastSession, setNotesFromLastSession] = useState(false)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -30,19 +34,26 @@ function ExerciseLogCard({
       .get<Prefill>(`/api/exercises/${log.exercise_id}/prefill?session_id=${sessionId}`)
       .then((p) => {
         setPrefill(p)
-        // Seed the goal from last time if nothing is set for today yet.
-        setGoal((current) => current || p.goal)
+        // Carry last session's notes forward so they can be read and updated,
+        // unless something was already written for today.
+        if (!log.notes && p.notes) {
+          setNotes(p.notes)
+          setNotesFromLastSession(true)
+        }
       })
       .catch(() => {})
+    // log.notes is only read to decide the initial seed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [log.exercise_id, sessionId])
 
-  // Prefill the next set's inputs from the matching set last time, else the last one.
+  // Seed the next set's inputs: set 1 repeats last session's opener, then every
+  // following set repeats what was actually done in today's first set.
   useEffect(() => {
     if (weight !== '' || reps !== '') return
-    const nextNumber = log.sets.length + 1
     const source =
-      prefill?.sets.find((s) => s.set_number === nextNumber) ??
-      prefill?.sets[prefill.sets.length - 1]
+      log.sets.length === 0
+        ? prefill?.sets.find((s) => s.set_number === 1) ?? prefill?.sets[0]
+        : log.sets[0]
     if (source) {
       setWeight(String(source.weight_kg))
       setReps(String(source.reps))
@@ -80,7 +91,8 @@ function ExerciseLogCard({
 
   async function saveNotes() {
     try {
-      await api.put(`/api/logs/${log.id}`, { notes, goal })
+      await api.put(`/api/logs/${log.id}`, { notes })
+      setNotesFromLastSession(false)
       await onChanged()
     } catch (err) {
       onError(err instanceof ApiError ? err.message : 'Could not save notes.')
@@ -112,6 +124,13 @@ function ExerciseLogCard({
           </p>
         </div>
         <div className="flex items-center gap-1">
+          <button
+            onClick={() => onShowInfo(log.exercise)}
+            aria-label={`How to do ${log.exercise.name}`}
+            className="rounded-lg p-2 text-ink-soft hover:bg-primary-tint hover:text-ink"
+          >
+            <Info className="h-4 w-4" />
+          </button>
           <Link
             to={`/training/exercise/${log.exercise_id}`}
             aria-label="History"
@@ -119,17 +138,6 @@ function ExerciseLogCard({
           >
             <TrendingUp className="h-4 w-4" />
           </Link>
-          {log.exercise.guide_url && (
-            <a
-              href={log.exercise.guide_url}
-              target="_blank"
-              rel="noreferrer noopener"
-              aria-label="Guide"
-              className="rounded-lg p-2 text-ink-soft hover:bg-primary-tint hover:text-ink"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          )}
           <button
             onClick={removeExercise}
             aria-label="Remove exercise"
@@ -139,17 +147,6 @@ function ExerciseLogCard({
           </button>
         </div>
       </div>
-
-      <label className="mt-4 flex flex-col gap-1.5 text-xs font-medium text-ink-soft">
-        Goal for today
-        <input
-          value={goal}
-          onChange={(e) => setGoal(e.target.value)}
-          onBlur={saveNotes}
-          placeholder="e.g. beat 65 kg × 8"
-          className={inputCls}
-        />
-      </label>
 
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[320px] text-sm">
@@ -184,25 +181,22 @@ function ExerciseLogCard({
               <td className="py-2 text-ink-soft">{log.sets.length + 1}</td>
               <td className="py-2 text-ink-soft">{prevLabel(log.sets.length + 1)}</td>
               <td className="py-2 pr-2">
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step="0.5"
+                <NumberStepper
+                  label="weight in kg"
                   value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  className={`${inputCls} w-20`}
-                  placeholder="kg"
+                  onChange={setWeight}
+                  step={2.5}
+                  max={1000}
                 />
               </td>
               <td className="py-2 pr-2">
-                <input
-                  type="number"
-                  inputMode="numeric"
+                <NumberStepper
+                  label="reps"
                   value={reps}
-                  onChange={(e) => setReps(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && addSet()}
-                  className={`${inputCls} w-20`}
-                  placeholder="reps"
+                  onChange={setReps}
+                  step={1}
+                  max={1000}
+                  onEnter={addSet}
                 />
               </td>
               <td className="py-2">
@@ -221,7 +215,9 @@ function ExerciseLogCard({
       </div>
 
       <label className="mt-4 flex flex-col gap-1.5 text-xs font-medium text-ink-soft">
-        Notes
+        {notesFromLastSession && prefill?.last_session_date
+          ? `Notes (from ${formatDate(prefill.last_session_date)} — edit to update)`
+          : 'Notes'}
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -241,6 +237,7 @@ export function SessionPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [picking, setPicking] = useState(false)
+  const [infoFor, setInfoFor] = useState<Exercise | null>(null)
 
   const load = useCallback(async () => {
     setSession(await api.get<SessionDetail>(`/api/sessions/${id}`))
@@ -309,6 +306,7 @@ export function SessionPage() {
             sessionId={session.id}
             onChanged={load}
             onError={setError}
+            onShowInfo={setInfoFor}
           />
         ))}
       </div>
@@ -327,6 +325,14 @@ export function SessionPage() {
             setPicking(false)
             addExercise(exercise.id)
           }}
+        />
+      )}
+
+      {infoFor && (
+        <ExerciseInfoModal
+          exercise={infoFor}
+          onClose={() => setInfoFor(null)}
+          onSaved={() => load()}
         />
       )}
     </div>

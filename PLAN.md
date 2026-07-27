@@ -15,8 +15,10 @@ one-time **onboarding** (height, training goal, diet goal, starting bodyweight),
 app — with all data stored **per authenticated user**:
 1. **Training** — define a reusable **training plan / routine** (e.g. Push/Pull/Legs) with a planned
    exercise list, then log each workout day from it with basic input (sets, kg, reps). Each exercise
-   links out to a guide page (e.g. fitundattraktiv.de). Notes and a goal are recorded **per training day per
-   exercise**, so the app builds a training history (per-day notes, goals, achievements/progress).
+   links out to a guide page (e.g. fitundattraktiv.de) and can carry the user's **own how-to info**
+   (target muscles + Haltung & Ausführung, each with an optional image), shown in an **overlay**
+   while training. Notes are recorded **per training day per exercise**, so the app builds a
+   training history (per-day notes, achievements/progress).
    Logging **prefills the previous session's** weights/reps, sessions track **duration**
    (started/finished timestamps), and a **bodyweight log** tracks progress over time against the diet goal.
 2. **Recipes** — easy meal-prep recipes grouped by meal type (breakfast, lunch, dinner, snacks),
@@ -64,11 +66,16 @@ plus a design system in `stitch_base_design/aura/DESIGN.md`. How to use it:
   role and it re-syncs on every login (allowlist is the source of truth). `ADMIN_EMAILS` solves the
   first-admin bootstrap and can never be locked out — those emails are always allowed as admins.
 - **Scope:** auth + onboarding + all sections above, **multi-user from the start** (every record is user-scoped).
-- **Exercise info:** store a `guide_url` (e.g. fitundattraktiv.de) + the user's own short notes per
-  exercise (do NOT copy their copyrighted descriptions/images). The field is neutral so any guide
-  can be linked; it is **not seeded with guessed URLs** (that site uses article-style slugs that
-  can't be derived from an exercise name, so a wrong link is worse than none) — links are pasted in
-  per exercise from the UI.
+- **Exercise info:** each exercise stores a `guide_url` (e.g. fitundattraktiv.de) plus the user's
+  **own how-to reference** — `target_muscles` and `execution` (Haltung & Ausführung), each with an
+  optional image URL — surfaced in an **overlay on the training page** so form can be checked
+  mid-workout without navigating away. The user fills these in themselves (writing their own notes
+  or pasting in what they find useful); this is a private, invite-only app for personal reference,
+  not a public reproduction of anyone's content. Image *URLs* are stored, not copies — a broken or
+  hotlink-blocked image just hides itself.
+  `guide_url` is neutral so any guide can be linked, and it is **not seeded with guessed URLs**
+  (fitundattraktiv.de uses article-style slugs that can't be derived from an exercise name, so a
+  wrong link is worse than none) — links are pasted in per exercise from the UI.
 - **Who may create exercises (hybrid):** admins curate the **global catalog**; every user can create
   **private exercises** only they see (`Exercise.created_by_user_id` NULL = global, set = private).
   Rationale: admin-only would block a user at the gym when a machine is missing from the catalog,
@@ -182,9 +189,10 @@ ingredient, and recipe catalogs are global (seeded, shared by all users).
   (enum lean_bulk/bulk/cut/custom) `+ diet_custom_text` — created during onboarding; its presence is
   how the app knows onboarding is complete. **No weight field** — current weight is the latest
   `BodyweightEntry`; onboarding creates the first one.
-- **Exercise** — `id, name, muscle_group, guide_url, created_by_user_id` — `created_by_user_id`
-  NULL = shared global catalog (seeded / admin-managed), set = private to that user;
-  `guide_url` links out, no copyrighted content stored
+- **Exercise** — `id, name, muscle_group, guide_url, target_muscles, target_muscles_image_url,
+  execution, execution_image_url, created_by_user_id` — `created_by_user_id` NULL = shared global
+  catalog (seeded / admin-managed), set = private to that user; the info fields are the user's own
+  how-to reference shown in the training overlay (empty on seeded rows, filled in from the UI)
 - **Routine** — `id, user_id (FK), name, description` — a reusable training-plan template
 - **RoutineExercise** — `id, routine_id (FK), exercise_id (FK), position, target_sets, target_reps`
   — the planned exercise list for a routine
@@ -192,8 +200,9 @@ ingredient, and recipe catalogs are global (seeded, shared by all users).
   started_at, finished_at (nullable)` — one training day, optionally started from a routine (which
   pre-fills its exercises). **Duration** is derived from the timestamps; **total volume**
   (Σ weight×reps) is derived from the sets — neither is stored.
-- **ExerciseLog** — `id, session_id (FK), exercise_id (FK), notes, goal` — one exercise done on that
-  day, with the **per-day notes** and a **goal/target** the user set for it
+- **ExerciseLog** — `id, session_id (FK), exercise_id (FK), notes` — one exercise done on that
+  day, with the **per-day notes** (a separate per-day "goal" field was tried and removed: it
+  duplicated the notes in practice and added friction while logging)
 - **WorkoutSet** — `id, exercise_log_id (FK), set_number, weight_kg, reps` — the actual logged sets
 - **BodyweightEntry** — `id, user_id (FK), date, weight_kg` — bodyweight-over-time log (first entry
   from onboarding)
@@ -221,7 +230,7 @@ ingredient, and recipe catalogs are global (seeded, shared by all users).
 `User` owns `Routine`s, `WorkoutSession`s, `BodyweightEntry`s, `MealPlanItem`s, `ShoppingCheck`s
 (and one `UserProfile`); the exercise, ingredient, and recipe catalogs are shared/global. The
 Session → ExerciseLog → Set hierarchy is what makes the **training history** view possible: each
-day groups the exercises trained, each carries its own notes + goal, and **achievements/progress**
+day groups the exercises trained, each carries its own notes, and **achievements/progress**
 (e.g. personal records — best weight×reps per exercise) are *derived* by querying `WorkoutSet`
 history rather than stored redundantly. **Prefill** when logging is likewise derived: look up the
 user's most recent `WorkoutSet`s for that exercise and pre-populate the form.
@@ -245,8 +254,8 @@ user's most recent `WorkoutSet`s for that exercise and pre-populate the form.
 - `GET/POST/PUT/DELETE /api/routines` (training-plan templates + their exercise lists)
 - `POST /api/sessions` (start a training day, optionally `from_routine_id`; sets `started_at`),
   `PUT /api/sessions/{id}/finish` (sets `finished_at`), `GET /api/sessions` (history list),
-  `GET /api/sessions/{id}` (a day with its exercise logs, notes, goals, sets, duration, volume)
-- `POST /api/sessions/{id}/logs` (add an exercise log w/ notes+goal), `POST /api/logs/{id}/sets` (log a set)
+  `GET /api/sessions/{id}` (a day with its exercise logs, notes, sets, duration, volume)
+- `POST /api/sessions/{id}/logs` (add an exercise log w/ notes), `POST /api/logs/{id}/sets` (log a set)
 - `GET /api/exercises/{id}/history` (per-exercise progress + PRs), `GET /api/exercises/{id}/prefill` (last set values)
 - `GET /api/recipes?meal_type=`, `GET /api/recipes/{id}` (incl. macros, tags, ingredients)
 - `GET/PUT /api/mealplan?week_start=` (the week's per-day recipe grid),
@@ -291,7 +300,9 @@ before the next starts.
    `workouts.py` (sessions/logs/sets, `from_routine_id`, start/finish timestamps, history+PRs,
    prefill, derived duration + volume); bodyweight endpoints.
 5. Frontend: `RoutinesPage` (build a plan), `TrainingPage` (start a day from a routine, log sets with
-   prefill, finish the session, view history/PRs with duration + volume), `BodyweightPage`.
+   prefill via **+/− steppers**, finish the session, view history/PRs with duration + volume),
+   `ExerciseInfoModal` (how-to overlay: target muscles + Haltung & Ausführung, editable in place),
+   `BodyweightPage`.
    → **Verify:** create a routine, log a day, confirm prefill + history + duration/volume + bodyweight
    persist per user.
 

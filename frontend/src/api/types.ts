@@ -45,9 +45,24 @@ export interface Exercise {
   name: string
   muscle_group: string
   guide_url: string
+  target_muscles: string
+  target_muscles_image_url: string
+  execution: string
+  execution_image_url: string
   created_by_user_id: number | null
   is_global: boolean
   can_edit: boolean
+}
+
+/** Editable fields of an exercise (create + update share this shape). */
+export interface ExerciseInput {
+  name: string
+  muscle_group: string
+  guide_url: string
+  target_muscles: string
+  target_muscles_image_url: string
+  execution: string
+  execution_image_url: string
 }
 
 export interface RoutineExercise {
@@ -77,7 +92,6 @@ export interface ExerciseLog {
   id: number
   exercise_id: number
   notes: string
-  goal: string
   exercise: Exercise
   sets: WorkoutSet[]
 }
@@ -108,7 +122,7 @@ export interface PrefillSet {
 export interface Prefill {
   exercise_id: number
   last_session_date: string | null
-  goal: string
+  notes: string
   sets: PrefillSet[]
 }
 
@@ -127,7 +141,6 @@ export interface ExerciseHistoryPoint {
   total_volume_kg: number
   sets: WorkoutSet[]
   notes: string
-  goal: string
 }
 
 export interface ExerciseHistory {

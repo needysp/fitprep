@@ -128,8 +128,9 @@ class Exercise(Base):
     everyone); set = a private exercise only its creator sees, so a user can add
     whatever their gym has without polluting the shared catalog.
 
-    guide_url just links out (e.g. fitundattraktiv.de); no copyrighted content
-    is stored.
+    guide_url links out to a guide; the target_muscles / execution fields hold
+    the user's own how-to notes (shown in an overlay while training), each with
+    an optional image URL.
     """
 
     __tablename__ = "exercises"
@@ -138,6 +139,11 @@ class Exercise(Base):
     name: Mapped[str] = mapped_column(String(255), index=True)
     muscle_group: Mapped[str] = mapped_column(String(64), default="")
     guide_url: Mapped[str] = mapped_column(String(512), default="")
+    # How-to reference, shown in the info overlay during a workout.
+    target_muscles: Mapped[str] = mapped_column(Text, default="")
+    target_muscles_image_url: Mapped[str] = mapped_column(String(1024), default="")
+    execution: Mapped[str] = mapped_column(Text, default="")  # Haltung & Ausführung
+    execution_image_url: Mapped[str] = mapped_column(String(1024), default="")
     created_by_user_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
@@ -194,7 +200,7 @@ class WorkoutSession(Base):
 
 
 class ExerciseLog(Base):
-    """One exercise performed on one training day, with per-day notes and goal."""
+    """One exercise performed on one training day, with that day's notes."""
 
     __tablename__ = "exercise_logs"
 
@@ -202,7 +208,6 @@ class ExerciseLog(Base):
     session_id: Mapped[int] = mapped_column(ForeignKey("workout_sessions.id", ondelete="CASCADE"))
     exercise_id: Mapped[int] = mapped_column(ForeignKey("exercises.id", ondelete="CASCADE"), index=True)
     notes: Mapped[str] = mapped_column(Text, default="")
-    goal: Mapped[str] = mapped_column(Text, default="")
 
     session: Mapped[WorkoutSession] = relationship(back_populates="logs")
     exercise: Mapped[Exercise] = relationship()

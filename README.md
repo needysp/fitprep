@@ -57,7 +57,9 @@ Open <http://localhost:5173>, sign in with Google, complete onboarding.
   user can create **private** exercises (visible only to them) straight from the exercise picker —
   so a missing machine at the gym never blocks logging.
 - Exercise guide links (`guide_url`) start empty and are pasted in per exercise; they are not
-  guessed, since fitundattraktiv.de uses article-style slugs.
+  guessed, since fitundattraktiv.de uses article-style slugs. Each exercise can also hold your own
+  how-to notes (target muscles, Haltung & Ausführung, each with an optional image URL), shown in an
+  overlay while training via the ⓘ button.
 - An exercise cannot be deleted while any workout or routine still references it.
 - Schema changes go through Alembic: `alembic revision --autogenerate -m "..."` then
   `alembic upgrade head`.
