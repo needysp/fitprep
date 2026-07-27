@@ -22,6 +22,13 @@ Google sign-in (OIDC via Authlib) · Alembic migrations.
    - When deploying, add the production one: `https://<your-domain>/api/auth/callback`
 4. Copy the client ID and secret into `backend/.env` (next section).
 
+### Access is invite-only
+
+Only allowlisted emails can sign in. Set `ADMIN_EMAILS` in `backend/.env` to your own email —
+those accounts always get in and are granted the **admin** role (this bootstraps the first admin;
+they can never be locked out). Once signed in, open **Admin** in the app to add other people's
+emails to the allowlist and pick each one's role. Anyone not on the list is rejected at login.
+
 ## Backend
 
 ```bash

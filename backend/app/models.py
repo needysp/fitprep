@@ -4,6 +4,9 @@ All user data is scoped by user_id. Exercise, IngredientItem and Recipe are
 global seeded catalogs shared by all users. Derived values (shopping list,
 daily macro totals, PRs, prefill, session duration/volume) are computed from
 these tables, never stored.
+
+Access is gated: only emails on the admin-managed AllowedEmail list (plus the
+config ADMIN_EMAILS bootstrap admins) may sign in.
 """
 
 import enum
@@ -26,6 +29,11 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
+
+
+class UserRole(str, enum.Enum):
+    admin = "admin"
+    user = "user"
 
 
 class DietGoal(str, enum.Enum):
@@ -58,6 +66,11 @@ class User(Base):
     oidc_sub: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     email: Mapped[str] = mapped_column(String(255), index=True)
     display_name: Mapped[str] = mapped_column(String(255), default="")
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, native_enum=False, length=16),
+        default=UserRole.user,
+        server_default=UserRole.user.value,
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     profile: Mapped["UserProfile | None"] = relationship(
@@ -85,6 +98,27 @@ class UserProfile(Base):
     diet_custom_text: Mapped[str] = mapped_column(Text, default="")
 
     user: Mapped[User] = relationship(back_populates="profile")
+
+
+class AllowedEmail(Base):
+    """Admin-managed login allowlist.
+
+    Only emails listed here (plus config ADMIN_EMAILS) may sign in. The row's
+    role is what the user is granted on login, and it re-syncs on every login so
+    this list is the source of truth for access and roles.
+    """
+
+    __tablename__ = "allowed_emails"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, native_enum=False, length=16),
+        default=UserRole.user,
+        server_default=UserRole.user.value,
+    )
+    note: Mapped[str] = mapped_column(String(255), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
 class Exercise(Base):

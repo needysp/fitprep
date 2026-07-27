@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import { AppLayout } from './components/AppLayout'
+import { AdminPage } from './pages/AdminPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { OnboardingPage } from './pages/OnboardingPage'
@@ -26,6 +27,12 @@ function Guarded({
   if (loading) return <FullScreenSpinner />
   if (!user) return <Navigate to="/login" replace />
   if (requireProfile && !profile) return <Navigate to="/onboarding" replace />
+  return <>{children}</>
+}
+
+function RequireAdmin({ children }: { children: ReactNode }) {
+  const { user } = useAuth()
+  if (user?.role !== 'admin') return <Navigate to="/" replace />
   return <>{children}</>
 }
 
@@ -78,6 +85,14 @@ export default function App() {
                 description="Plan the week's meals day by day and get an aggregated, department-grouped shopping list."
                 slice={3}
               />
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <AdminPage />
+              </RequireAdmin>
             }
           />
         </Route>

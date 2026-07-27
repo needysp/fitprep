@@ -7,3 +7,4 @@ pydantic-settings
 authlib
 itsdangerous
 httpx
+email-validator

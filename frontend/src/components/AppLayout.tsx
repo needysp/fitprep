@@ -3,22 +3,33 @@ import {
   Dumbbell,
   LayoutDashboard,
   LogOut,
+  ShieldCheck,
   ShoppingCart,
   UtensilsCrossed,
 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 
-const navItems = [
+const baseNavItems = [
   { to: '/', label: 'Dashboard', short: 'Home', icon: LayoutDashboard, end: true },
   { to: '/training', label: 'Training', short: 'Training', icon: Dumbbell, end: false },
   { to: '/recipes', label: 'Recipes', short: 'Recipes', icon: UtensilsCrossed, end: false },
   { to: '/shopping', label: 'Shopping List', short: 'Shopping', icon: ShoppingCart, end: false },
 ]
 
+const adminNavItem = {
+  to: '/admin',
+  label: 'Admin',
+  short: 'Admin',
+  icon: ShieldCheck,
+  end: false,
+}
+
 export function AppLayout() {
   const { user, logout } = useAuth()
   const name = user?.display_name || user?.email || ''
   const initial = name.charAt(0).toUpperCase() || '?'
+  const navItems =
+    user?.role === 'admin' ? [...baseNavItems, adminNavItem] : baseNavItems
 
   return (
     <div className="min-h-dvh">

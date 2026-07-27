@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from .config import get_settings
 from .database import get_db
-from .models import User, UserProfile
+from .models import AllowedEmail, User, UserProfile, UserRole
 from .schemas import MeOut
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -35,6 +35,27 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     return user
 
 
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    if user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
+def _resolve_role(db: Session, email: str, email_verified: bool) -> UserRole | None:
+    """Role to grant this email, or None if it may not sign in.
+
+    Config ADMIN_EMAILS are always allowed as admins (bootstrap); otherwise the
+    email must be on the admin-managed allowlist, which also carries its role.
+    An unverified IdP email is never accepted (it must not match an allowed one).
+    """
+    if not email or not email_verified:
+        return None
+    if email in settings.admin_email_set:
+        return UserRole.admin
+    allowed = db.scalar(select(AllowedEmail).where(AllowedEmail.email == email))
+    return allowed.role if allowed is not None else None
+
+
 @router.get("/login")
 async def login(request: Request):
     redirect_uri = str(request.url_for("auth_callback"))
@@ -51,18 +72,22 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
     if not userinfo or "sub" not in userinfo:
         raise HTTPException(status_code=401, detail="Sign-in failed: no identity returned")
 
+    email = (userinfo.get("email") or "").lower()
+    role = _resolve_role(db, email, bool(userinfo.get("email_verified")))
+    if role is None:
+        # Not on the allowlist: create no account, set no session.
+        request.session.clear()
+        return RedirectResponse(f"{settings.frontend_url}/login?error=not_allowed")
+
     oidc_sub = f"google:{userinfo['sub']}"
     user = db.scalar(select(User).where(User.oidc_sub == oidc_sub))
     if user is None:
-        user = User(
-            oidc_sub=oidc_sub,
-            email=userinfo.get("email", ""),
-            display_name=userinfo.get("name", ""),
-        )
+        user = User(oidc_sub=oidc_sub, email=email, display_name=userinfo.get("name", ""))
         db.add(user)
     else:
-        user.email = userinfo.get("email", user.email)
+        user.email = email
         user.display_name = userinfo.get("name", user.display_name)
+    user.role = role  # re-sync from the allowlist on every login
     db.commit()
     db.refresh(user)
 

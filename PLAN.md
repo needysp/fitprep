@@ -5,8 +5,13 @@
 The user recently started going to the gym and doing meal prep, and wants a simple
 personal website to support both habits. This is a greenfield project, scaffolded from scratch.
 
-In v1 the user must sign in via an identity provider (**Google OIDC** to start), complete a
-one-time **onboarding** (height, training goal, diet goal, starting bodyweight), and then use the
+Access is **invite-only**: the app is not open to anyone with a Google account. An **admin**
+maintains an allowlist of permitted email addresses; only those emails (plus the config-defined
+bootstrap admins) can sign in. There are two roles — **admin** and **user** — and the allowlist
+entry decides which role a person gets.
+
+In v1 an allowed user signs in via an identity provider (**Google OIDC** to start), completes a
+one-time **onboarding** (height, training goal, diet goal, starting bodyweight), and then uses the
 app — with all data stored **per authenticated user**:
 1. **Training** — define a reusable **training plan / routine** (e.g. Push/Pull/Legs) with a planned
    exercise list, then log each workout day from it with basic input (sets, kg, reps). Each exercise
@@ -22,6 +27,8 @@ app — with all data stored **per authenticated user**:
    Clear-All + Print, and the week's daily macro totals.
 4. **Dashboard** — slim home screen composed only of data the app already has: last workout summary,
    weekly activity, bodyweight trend, and today's planned meals.
+5. **Admin** (admins only) — manage the login allowlist (add/remove permitted emails, choose each
+   one's role) and see who has registered. Hidden from regular users.
 
 The whole UI is **mobile-responsive** (used at the gym and in the supermarket): desktop gets the
 sidebar layout from the design mocks, phones get a **bottom tab bar**.
@@ -51,6 +58,11 @@ plus a design system in `stitch_base_design/aura/DESIGN.md`. How to use it:
   per-user data. **Alembic migrations from day one** (workout history must survive schema changes).
 - **Auth (v1):** OIDC login, **Google** as the first IdP. First login creates a `User`; a one-time
   **onboarding** captures the profile before the app is usable.
+- **Access control:** invite-only via an admin-managed **allowlist** (`AllowedEmail`) keyed by email.
+  Login is rejected unless the (verified) IdP email is on the allowlist or in the config
+  **`ADMIN_EMAILS`** bootstrap list. Two roles, **admin** / **user**; the allowlist entry sets the
+  role and it re-syncs on every login (allowlist is the source of truth). `ADMIN_EMAILS` solves the
+  first-admin bootstrap and can never be locked out — those emails are always allowed as admins.
 - **Scope:** auth + onboarding + all sections above, **multi-user from the start** (every record is user-scoped).
 - **Exercise info:** store a fitundaktiv.de link + the user's own short notes per exercise
   (do NOT copy their copyrighted descriptions/images).
@@ -78,9 +90,10 @@ fitprep/
       database.py       # SQLAlchemy engine/session/Base (SQLite file: app.db)
       models.py         # ORM models (see data model below)
       schemas.py        # Pydantic request/response models
-      auth.py           # OIDC (Google) login/callback/logout + current-user dependency
+      auth.py           # OIDC (Google) login/callback/logout + allowlist gate + current-user/admin deps
       routers/
         profile.py      # onboarding + read/update profile; bodyweight log
+        admin.py        # admin-only: manage login allowlist + list registered users
         exercises.py    # CRUD for exercise library
         routines.py     # training-plan templates (user-scoped)
         workouts.py     # log + query workout sessions/sets, prefill, history (user-scoped)
@@ -90,7 +103,7 @@ fitprep/
       seed.py           # seed starter exercises + ingredient catalog + 16 recipes w/ macros (global)
     alembic/            # migrations (init in Slice 0, autogenerate per schema change)
     requirements.txt
-    .env.example        # GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / SESSION_SECRET / FRONTEND_URL
+    .env.example        # GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / SESSION_SECRET / FRONTEND_URL / ADMIN_EMAILS
   frontend/
     index.html
     package.json, vite.config.ts, tsconfig.json, tailwind.config.ts  # Aura tokens in the theme
@@ -99,9 +112,10 @@ fitprep/
       auth/AuthContext.tsx     # holds current user, redirects to login when unauthenticated
       api/client.ts            # typed fetch wrapper (sends session cookie) to the backend
       pages/
-        LoginPage.tsx          # "Sign in with Google" button
+        LoginPage.tsx          # "Sign in with Google" button + not-allowed error banner
         OnboardingPage.tsx     # first-login form: height, goals, starting bodyweight
         DashboardPage.tsx      # home: last session, weekly activity, bodyweight trend, today's meals
+        AdminPage.tsx          # admin-only: manage allowlist (email + role) + view registered users
         RoutinesPage.tsx       # create/edit training-plan templates
         TrainingPage.tsx       # start a day from a routine; set logger w/ prefill + history + duration
         BodyweightPage.tsx     # log + view bodyweight over time (reachable from Dashboard/Training)
@@ -124,11 +138,20 @@ Uses **Authlib** on the backend for the OIDC dance and a signed **session cookie
 `SessionMiddleware`) to keep the user logged in — simplest robust option for a personal app.
 
 1. Frontend `LoginPage` links to `GET /api/auth/login` → backend redirects to Google.
-2. Google redirects back to `GET /api/auth/callback` → backend verifies the token, upserts a
-   `User` (by Google `sub`/email), stores `user_id` in the session cookie, redirects to
-   **`FRONTEND_URL`** (config, not hardcoded — differs between dev `:5173` and prod).
-3. Frontend calls `GET /api/auth/me`; if the user has **no profile yet** → route to `OnboardingPage`,
-   otherwise → the app. `POST /api/auth/logout` clears the session.
+2. Google redirects back to `GET /api/auth/callback` → backend verifies the token, then checks the
+   **allowlist**: the (verified) email must be in `ADMIN_EMAILS` (→ admin) or have an `AllowedEmail`
+   row (→ that row's role). If not allowed, **no `User` is created and no session is set** — it
+   redirects to `FRONTEND_URL/login?error=not_allowed` and the login page explains access is
+   invite-only. If allowed, it upserts the `User` (by Google `sub`/email), sets the role, stores
+   `user_id` in the session cookie, and redirects to **`FRONTEND_URL`** (config, not hardcoded —
+   differs between dev `:5173` and prod).
+3. Frontend calls `GET /api/auth/me` (returns the user incl. `role` + profile); if the user has
+   **no profile yet** → route to `OnboardingPage`, otherwise → the app. Admin-only routes/nav are
+   gated on `role === "admin"`. `POST /api/auth/logout` clears the session.
+
+Access is checked at **login time** (the gate to getting a session). Removing someone from the
+allowlist blocks their next login; an already-open session lasts until logout — acceptable for a
+personal app with a handful of users. A `require_admin` dependency guards every admin endpoint.
 
 The Google OAuth client needs **both** redirect URIs registered: the localhost one for dev and the
 production domain one. In prod the session cookie is `Secure` (HTTPS via Caddy).
@@ -139,7 +162,12 @@ ingredient, and recipe catalogs are global (seeded, shared by all users).
 
 ### Data model (SQLAlchemy, `models.py`)
 
-- **User** — `id, oidc_sub, email, display_name, created_at` — one row per Google account (upserted on login)
+- **User** — `id, oidc_sub, email, display_name, role` (enum admin/user), `created_at` — one row per
+  Google account (upserted on login); `role` re-synced from the allowlist each login
+- **AllowedEmail** — `id, email (unique), role` (enum admin/user), `note, created_at` — the
+  admin-managed login allowlist; presence of a matching (verified) email is what permits sign-in,
+  and the row's role is granted to the user. Config `ADMIN_EMAILS` are always-allowed admins on top
+  of this table (no row required).
 - **UserProfile** — `id, user_id (FK, unique), height_cm, gender, training_goal, diet_goal`
   (enum lean_bulk/bulk/cut/custom) `+ diet_custom_text` — created during onboarding; its presence is
   how the app knows onboarding is complete. **No weight field** — current weight is the latest
@@ -198,6 +226,8 @@ user's most recent `WorkoutSet`s for that exercise and pre-populate the form.
 ### API surface (v1)
 
 - `GET /api/auth/login` (→ Google), `GET /api/auth/callback`, `POST /api/auth/logout`, `GET /api/auth/me`
+- **Admin only** (`require_admin`): `GET/POST /api/admin/allowlist`, `DELETE /api/admin/allowlist/{id}`
+  (manage permitted emails + roles), `GET /api/admin/users` (list registered users + roles)
 - `POST /api/profile` (complete onboarding incl. starting bodyweight), `GET/PUT /api/profile`
 - `GET/POST /api/bodyweight` (log + list bodyweight over time)
 - `GET/POST/PUT/DELETE /api/exercises`
@@ -222,20 +252,27 @@ All endpoints except `/api/auth/*` require an authenticated session and operate 
 Built in **vertical slices** — each slice ships a fully usable backend+frontend piece and is verified
 before the next starts.
 
-**Slice 0 — Foundation (scaffold + auth + onboarding)**
-1. Backend scaffold: `requirements.txt` (fastapi, uvicorn, sqlalchemy, **alembic**, pydantic, authlib,
-   itsdangerous, httpx), `config.py` (incl. `FRONTEND_URL`), `database.py`, `models.py` (all models),
-   `schemas.py`, `main.py` with `SessionMiddleware`, CORS, routers mounted.
+**Slice 0 — Foundation (scaffold + auth + access control + onboarding)**
+1. Backend scaffold: `requirements.txt` (fastapi, uvicorn, sqlalchemy, **alembic**, pydantic,
+   pydantic-settings, authlib, itsdangerous, httpx, **email-validator**), `config.py` (incl.
+   `FRONTEND_URL`, `ADMIN_EMAILS`), `database.py`, `models.py` (all models incl. `User.role` +
+   `AllowedEmail`), `schemas.py`, `main.py` with `SessionMiddleware`, CORS, routers mounted.
    **Alembic init + initial migration** (schema changes are migrations from here on).
-2. `auth.py`: Google OIDC via Authlib (`login`/`callback`/`logout`/`me`) + `current_user` dependency;
-   `routers/profile.py` for onboarding (creates profile + first `BodyweightEntry`) + profile
-   read/update. `.env.example` + README Google-OAuth steps (register both dev + prod redirect URIs).
+2. `auth.py`: Google OIDC via Authlib (`login`/`callback`/`logout`/`me`) + **allowlist gate** in the
+   callback (reject non-allowed emails → `?error=not_allowed`, no account/session) + `current_user`
+   and `require_admin` dependencies; `routers/profile.py` for onboarding (creates profile + first
+   `BodyweightEntry`) + profile read/update; `routers/admin.py` (allowlist CRUD + users list).
+   `.env.example` + README Google-OAuth steps (register both dev + prod redirect URIs; set
+   `ADMIN_EMAILS` to your own email).
 3. Frontend scaffold: Vite React+TS + Tailwind with the **Aura design tokens** (colors incl. primary
-   `#d97757`, Inter, radii, spacing) in `tailwind.config.ts`; responsive shell — **desktop sidebar +
-   mobile bottom tab bar**; `api/client.ts` (credentials: include), `AuthContext` + auth guard,
-   Vite `/api` proxy; `LoginPage` + `OnboardingPage`.
-   → **Verify:** sign in with Google, complete onboarding, land in the (empty) app; shell renders
-   correctly at phone width (bottom tab bar) and desktop (sidebar).
+   `#d97757`, Inter, radii, spacing); responsive shell — **desktop sidebar + mobile bottom tab bar**,
+   with the **Admin** nav shown only to admins; `api/client.ts` (credentials: include), `AuthContext`
+   + auth guard + admin guard, Vite `/api` proxy; `LoginPage` (with not-allowed banner),
+   `OnboardingPage`, `AdminPage`.
+   → **Verify:** with your email in `ADMIN_EMAILS`, sign in with Google → admin; complete onboarding,
+   land in the (empty) app; open Admin, add a friend's email, confirm a non-allowlisted account is
+   rejected at login with the banner; shell renders correctly at phone width (bottom tab bar) and
+   desktop (sidebar).
 
 **Slice 1 — Training (end-to-end)**
 4. Backend: `seed.py` starter exercises (fitundaktiv links); `routers/exercises.py`, `routines.py`,
@@ -283,7 +320,8 @@ before the next starts.
 Each slice is verified as it lands (see the → Verify notes above). Full end-to-end pass at the end:
 
 - **Setup:** create a Google OAuth 2.0 client (redirect URIs `http://localhost:8000/api/auth/callback`
-  + the prod one), copy `.env.example` → `.env`, fill client id/secret + a session secret + FRONTEND_URL.
+  + the prod one), copy `.env.example` → `.env`, fill client id/secret + a session secret +
+  FRONTEND_URL + `ADMIN_EMAILS` (your own email, so the first sign-in is an admin).
 - **Backend:** `cd backend && pip install -r requirements.txt && alembic upgrade head &&
   python -m app.seed` then `uvicorn app.main:app --reload`. Complete Google sign-in and confirm the
   callback creates a `User` + session cookie. Via Swagger (authenticated): complete onboarding
@@ -297,8 +335,12 @@ Each slice is verified as it lands (see the → Verify notes above). Full end-to
   check-off, Clear All, print view, and macro totals; edit the profile in Settings. Verify the
   layout at phone width uses the bottom tab bar and every page is usable one-handed. Log out and
   confirm the app is gated behind login again.
-- **Isolation check:** sign in as a second Google account and confirm none of the first user's
-  routines / workouts / meal plan are visible.
+- **Access-control check:** try signing in with a Google account that is **not** on the allowlist →
+  rejected with the not-allowed banner, no account created. As an admin, add that email in Admin,
+  confirm it can now sign in; remove it and confirm the next login is blocked. Confirm a regular
+  user sees no Admin nav and `GET /api/admin/*` returns 403 for them.
+- **Isolation check:** sign in as a second (allowlisted) Google account and confirm none of the
+  first user's routines / workouts / meal plan are visible.
 - **Persistence check:** restart the backend and confirm profile, routines, logged sets, bodyweight,
   meal plan, and check-off state survive (SQLite file). Run a no-op `alembic upgrade head` to
   confirm migrations are wired.

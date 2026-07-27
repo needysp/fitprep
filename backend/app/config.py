@@ -15,6 +15,14 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./app.db"
     # Set true in prod (HTTPS) so the session cookie is marked Secure.
     secure_cookies: bool = False
+    # Comma-separated bootstrap admins: always allowed to sign in and always
+    # granted the admin role, so the first admin can get in with no allowlist
+    # row and can never be locked out.
+    admin_emails: str = ""
+
+    @property
+    def admin_email_set(self) -> set[str]:
+        return {e.strip().lower() for e in self.admin_emails.split(",") if e.strip()}
 
 
 @lru_cache

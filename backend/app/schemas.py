@@ -1,6 +1,8 @@
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from datetime import datetime
 
-from .models import DietGoal
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+
+from .models import DietGoal, UserRole
 
 
 class UserOut(BaseModel):
@@ -9,6 +11,7 @@ class UserOut(BaseModel):
     id: int
     email: str
     display_name: str
+    role: UserRole
 
 
 class ProfileBase(BaseModel):
@@ -41,3 +44,34 @@ class ProfileOut(ProfileBase):
 class MeOut(BaseModel):
     user: UserOut
     profile: ProfileOut | None = None
+
+
+# --- Admin: access control ---
+
+
+class AllowedEmailCreate(BaseModel):
+    email: EmailStr
+    role: UserRole = UserRole.user
+    note: str = Field(default="", max_length=255)
+
+
+class AllowedEmailOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    role: UserRole
+    note: str
+    created_at: datetime
+    # True once someone has actually signed in with this email.
+    registered: bool = False
+
+
+class UserAdminOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    display_name: str
+    role: UserRole
+    created_at: datetime

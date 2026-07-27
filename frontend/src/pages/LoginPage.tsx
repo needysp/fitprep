@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
 function GoogleIcon() {
@@ -26,6 +26,8 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const { loading, user, profile } = useAuth()
+  const [params] = useSearchParams()
+  const notAllowed = params.get('error') === 'not_allowed'
 
   if (loading) return null
   if (user) return <Navigate to={profile ? '/' : '/onboarding'} replace />
@@ -37,6 +39,14 @@ export function LoginPage() {
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">
           Training, meal prep and your weekly shopping list — in one place.
         </p>
+
+        {notAllowed && (
+          <div className="mt-6 rounded-lg border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
+            This Google account isn't approved for access yet. Ask the admin to add your email
+            address to the allowlist, then try again.
+          </div>
+        )}
+
         <a
           href="/api/auth/login"
           className="mt-8 flex items-center justify-center gap-3 rounded-lg border border-line bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:bg-primary-tint"
