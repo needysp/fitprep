@@ -34,6 +34,7 @@ app.include_router(exercises.router)
 app.include_router(routines.router)
 app.include_router(workouts.router)
 app.include_router(recipes.router)
+app.include_router(recipes.ingredients_router)
 
 
 @app.get("/api/health")

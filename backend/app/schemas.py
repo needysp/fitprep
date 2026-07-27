@@ -289,11 +289,60 @@ class RecipeSummaryOut(BaseModel):
     protein_g: float
     carbs_g: float
     fat_g: float
+    created_by_user_id: int | None = None
+    is_global: bool = False
+    can_edit: bool = False
 
 
 class RecipeDetailOut(RecipeSummaryOut):
     instructions: str
     ingredients: list[RecipeIngredientOut]
+
+
+class RecipeIngredientIn(BaseModel):
+    ingredient_item_id: int
+    quantity: float = Field(gt=0, le=100000)
+
+
+class RecipeIn(BaseModel):
+    title: str = Field(min_length=1, max_length=255)
+    meal_type: MealType
+    servings: int = Field(default=1, ge=1, le=50)
+    prep_minutes: int = Field(default=0, ge=0, le=1440)
+    instructions: str = ""
+    tags: list[str] = []
+    image_url: str | None = Field(default=None, max_length=1024)
+    ingredients: list[RecipeIngredientIn] = []
+    # Admins only: publish to the shared catalog instead of keeping it private.
+    is_global: bool = False
+
+
+# --- Ingredient catalog ---
+
+
+class IngredientItemIn(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+    category: IngredientCategory = IngredientCategory.other
+    default_unit: str = Field(default="g", max_length=32)
+    kcal_per_100: float = Field(default=0, ge=0, le=1000)
+    protein_per_100: float = Field(default=0, ge=0, le=100)
+    carbs_per_100: float = Field(default=0, ge=0, le=100)
+    fat_per_100: float = Field(default=0, ge=0, le=100)
+    grams_per_unit: float = Field(default=1, gt=0, le=10000)
+
+
+class IngredientItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    category: IngredientCategory
+    default_unit: str
+    kcal_per_100: float
+    protein_per_100: float
+    carbs_per_100: float
+    fat_per_100: float
+    grams_per_unit: float
 
 
 class PrefillOut(BaseModel):

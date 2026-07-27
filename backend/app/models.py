@@ -244,6 +244,9 @@ class IngredientItem(Base):
     Recipes reference these rows instead of free-text names so shopping-list
     aggregation is robust, the list can group by supermarket department, and a
     future StoreOffer table (weekly discounts) has a stable join point.
+
+    Nutrition is per 100 g/ml and lives here so the server can compute macros for
+    any recipe — seeded or user-written — from its actual quantities.
     """
 
     __tablename__ = "ingredient_items"
@@ -255,14 +258,28 @@ class IngredientItem(Base):
         default=IngredientCategory.other,
     )
     default_unit: Mapped[str] = mapped_column(String(32), default="g")
+    kcal_per_100: Mapped[float] = mapped_column(Float, default=0, server_default="0")
+    protein_per_100: Mapped[float] = mapped_column(Float, default=0, server_default="0")
+    carbs_per_100: Mapped[float] = mapped_column(Float, default=0, server_default="0")
+    fat_per_100: Mapped[float] = mapped_column(Float, default=0, server_default="0")
+    # Weight of one `default_unit`: 1 for g/ml, the real weight for piece/slice.
+    grams_per_unit: Mapped[float] = mapped_column(Float, default=1, server_default="1")
 
 
 class Recipe(Base):
-    """Global catalog; macros are per serving."""
+    """A recipe, either global or private to one user (same rule as Exercise).
+
+    created_by_user_id NULL = shared catalog (seeded / admin-managed), set =
+    private to that user. Macros are per serving and are computed from the
+    ingredient quantities, never entered by hand.
+    """
 
     __tablename__ = "recipes"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    created_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
     title: Mapped[str] = mapped_column(String(255))
     meal_type: Mapped[MealType] = mapped_column(
         Enum(MealType, native_enum=False, length=32), index=True

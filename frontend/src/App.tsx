@@ -10,6 +10,7 @@ import { LoginPage } from './pages/LoginPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { RecipeDetailPage } from './pages/RecipeDetailPage'
+import { RecipeEditorPage } from './pages/RecipeEditorPage'
 import { RecipesPage } from './pages/RecipesPage'
 import { RoutinesPage } from './pages/RoutinesPage'
 import { SessionPage } from './pages/SessionPage'
@@ -70,7 +71,10 @@ export default function App() {
           <Route path="/training/exercise/:id" element={<ExerciseHistoryPage />} />
           <Route path="/bodyweight" element={<BodyweightPage />} />
           <Route path="/recipes" element={<RecipesPage />} />
+          {/* Before /recipes/:id so "new" isn't read as an id. */}
+          <Route path="/recipes/new" element={<RecipeEditorPage />} />
           <Route path="/recipes/:id" element={<RecipeDetailPage />} />
+          <Route path="/recipes/:id/edit" element={<RecipeEditorPage />} />
           <Route
             path="/shopping"
             element={

@@ -1,11 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Clock, Search } from 'lucide-react'
+import { Clock, Plus, Search } from 'lucide-react'
 import { api } from '../api/client'
 import type { MealType, Recipe } from '../api/types'
 import { MEAL_TYPES } from '../constants'
 import { MacroRow, RecipeImage } from '../components/RecipeBits'
-import { EmptyState, ErrorNote, PageHeader, Tag, cardCls, inputCls } from '../components/ui'
+import {
+  Button,
+  EmptyState,
+  ErrorNote,
+  PageHeader,
+  Tag,
+  cardCls,
+  inputCls,
+} from '../components/ui'
 
 function RecipeCard({ recipe }: { recipe: Recipe }) {
   return (
@@ -21,13 +29,12 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
         </span>
       </div>
       <div className="flex flex-1 flex-col p-4">
-        {recipe.tags.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-1">
-            {recipe.tags.slice(0, 2).map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
-          </div>
-        )}
+        <div className="mb-2 flex flex-wrap gap-1">
+          {!recipe.is_global && <Tag>Mine</Tag>}
+          {recipe.tags.slice(0, recipe.is_global ? 2 : 1).map((tag) => (
+            <Tag key={tag}>{tag}</Tag>
+          ))}
+        </div>
         <h3 className="font-semibold leading-snug">{recipe.title}</h3>
         <p className="mt-1 text-xs text-ink-soft">
           {recipe.servings} serving{recipe.servings === 1 ? '' : 's'}
@@ -71,6 +78,15 @@ export function RecipesPage() {
       <PageHeader
         title="Recipes"
         description="Meal-prep friendly recipes with the macros worked out per serving."
+        action={
+          <Link to="/recipes/new">
+            <Button>
+              <span className="flex items-center gap-2">
+                <Plus className="h-4 w-4" /> New recipe
+              </span>
+            </Button>
+          </Link>
+        }
       />
 
       <ErrorNote>{error}</ErrorNote>

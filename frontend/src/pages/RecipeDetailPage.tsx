@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Clock, Users } from 'lucide-react'
-import { api } from '../api/client'
+import { api, ApiError } from '../api/client'
 import type { RecipeDetail } from '../api/types'
 import { INGREDIENT_CATEGORIES } from '../constants'
 import { MacroRow, RecipeImage, mealTypeLabel } from '../components/RecipeBits'
-import { ErrorNote, Tag, cardCls } from '../components/ui'
+import { Button, ErrorNote, Tag, cardCls } from '../components/ui'
 
 /** 0.5 -> "½", 1 -> "1", 1.5 -> "1½" — quantities read better than decimals. */
 function formatQuantity(quantity: number) {
@@ -18,9 +18,20 @@ function formatQuantity(quantity: number) {
 
 export function RecipeDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  async function remove() {
+    setError('')
+    try {
+      await api.del(`/api/recipes/${id}`)
+      navigate('/recipes', { replace: true })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not delete the recipe.')
+    }
+  }
 
   useEffect(() => {
     api
@@ -60,13 +71,26 @@ export function RecipeDetailPage() {
         <div className="p-6">
           <div className="flex flex-wrap items-center gap-1.5">
             <Tag>{mealTypeLabel(recipe.meal_type)}</Tag>
+            {!recipe.is_global && <Tag>Mine</Tag>}
             {recipe.tags.map((tag) => (
               <Tag key={tag}>{tag}</Tag>
             ))}
           </div>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">
-            {recipe.title}
-          </h1>
+          <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+              {recipe.title}
+            </h1>
+            {recipe.can_edit && (
+              <div className="flex gap-1">
+                <Link to={`/recipes/${recipe.id}/edit`}>
+                  <Button variant="secondary">Edit</Button>
+                </Link>
+                <Button variant="danger" onClick={remove}>
+                  Delete
+                </Button>
+              </div>
+            )}
+          </div>
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-ink-soft">
             <span className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" /> {recipe.prep_minutes} min
@@ -76,6 +100,7 @@ export function RecipeDetailPage() {
               {recipe.servings === 1 ? '' : 's'}
             </span>
           </div>
+          <ErrorNote>{error}</ErrorNote>
         </div>
       </div>
 

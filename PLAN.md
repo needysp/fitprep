@@ -83,11 +83,18 @@ plus a design system in `stitch_base_design/aura/DESIGN.md`. How to use it:
   PRs and prefill key on `exercise_id`, duplicates would silently split a user's history.
   Deleting an exercise is **refused** while any workout log or routine references it, so training
   history can never disappear as a side effect.
-- **Recipe macros are computed from the ingredients**, not typed in by hand: the seed holds per-100 g
-  nutrition for every catalog ingredient and derives each recipe's per-serving macros from its actual
-  quantities. Keeps what the app shows consistent with what the recipe contains — and with the weekly
-  macro totals derived from it in Slice 3. (Nutrition values live in the seed module only; the DB
-  still stores macros per serving on `Recipe`, as planned.)
+- **Recipe macros are computed from the ingredients**, never accepted from the client: per-100 g
+  nutrition lives on `IngredientItem` in the database, and `nutrition.py` derives each recipe's
+  per-serving macros from its actual quantities. The seed and the recipe write endpoints share that
+  one function, so a user-written recipe gets its numbers exactly the way a seeded one does. Keeps
+  what the app shows consistent with what the recipe contains — and with the weekly macro totals
+  derived from it in Slice 3.
+- **Users can write their own recipes** (same ownership rule as exercises): `Recipe.created_by_user_id`
+  NULL = shared catalog (seeded / admin-managed), set = private to that user. Admins can publish to
+  the shared catalog. Any user can extend the shared **ingredient** catalog (case-insensitive dedup on
+  name, so one ingredient can't split the shopping list into two lines); ingredients are shared rather
+  than per-user because they are a common vocabulary, and this is a small invite-only group.
+  A recipe cannot be deleted while a meal plan still references it.
 - **No invented recipe photos:** `image_url` is seeded empty and cards render a tinted fallback,
   the same rule applied to exercise `guide_url`. Real photos can be added later.
 - **Ingredients are a canonical catalog**, not free text: recipes reference `IngredientItem` rows
@@ -264,7 +271,10 @@ user's most recent `WorkoutSet`s for that exercise and pre-populate the form.
   `GET /api/sessions/{id}` (a day with its exercise logs, notes, sets, duration, volume)
 - `POST /api/sessions/{id}/logs` (add an exercise log w/ notes), `POST /api/logs/{id}/sets` (log a set)
 - `GET /api/exercises/{id}/history` (per-exercise progress + PRs), `GET /api/exercises/{id}/prefill` (last set values)
-- `GET /api/recipes?meal_type=`, `GET /api/recipes/{id}` (incl. macros, tags, ingredients)
+- `GET /api/recipes?meal_type=` (shared + own), `GET /api/recipes/{id}` (incl. macros, tags,
+  ingredients), `POST/PUT/DELETE /api/recipes` (write your own; admins may publish to the shared
+  catalog; macros always computed server-side)
+- `GET/POST /api/ingredients` (shared ingredient catalog incl. per-100 g nutrition)
 - `GET/PUT /api/mealplan?week_start=` (the week's per-day recipe grid),
   `GET /api/shopping-list?week_start=` (aggregated by department + check state + daily macro totals),
   `PUT /api/shopping-list/check` (toggle an item by `ingredient_item_id`),
@@ -317,10 +327,13 @@ before the next starts.
 6. Backend: seed the **ingredient catalog** (45 canonical items + department categories + per-100 g
    nutrition) and 16 recipes (4 per meal type) referencing it, with tags and **macros computed from
    the ingredient quantities**; `routers/recipes.py` (read-only list + detail).
-7. Frontend: `RecipesPage` with meal-type tabs, cards showing photo (graceful without), tags,
-   ingredients, instructions, macros.
+7. Frontend: `RecipesPage` with meal-type tabs + search, cards showing photo (graceful without),
+   tags and macros; `RecipeDetailPage` (ingredients grouped by department, method steps);
+   `RecipeEditorPage` + `IngredientPicker` for writing your own recipes, with a live per-serving
+   macro preview as ingredients are added.
    → **Verify:** browse 4 recipes per meal type with correct macros, tags render, cards without
-   images degrade cleanly.
+   images degrade cleanly; write a recipe and confirm its macros are computed from the ingredients
+   and it stays private to its author.
 
 **Slice 3 — Meal plan + shopping list (end-to-end)**
 8. Backend: `routers/mealplan.py` — per-day weekly plan (`week_start` = ISO Monday, validated),

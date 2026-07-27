@@ -61,6 +61,10 @@ Open <http://localhost:5173>, sign in with Google, complete onboarding.
   how-to notes (target muscles, Haltung & Ausführung, each with an optional image URL), shown in an
   overlay while training via the ⓘ button.
 - An exercise cannot be deleted while any workout or routine still references it.
+- Recipes follow the same rule: the 16 seeded ones are shared, and anything you write is private to
+  you (admins can publish to the shared catalog). **Macros are always computed** from the ingredient
+  quantities and each ingredient's per-100 g nutrition — never typed in — so they can't drift from
+  what's actually in the dish. New ingredients are added from the recipe editor with their nutrition.
 - Schema changes go through Alembic: `alembic revision --autogenerate -m "..."` then
   `alembic upgrade head`.
 - Deployment (Slice 5): FastAPI serves `frontend/dist` on one origin behind Caddy/HTTPS,

@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session, selectinload
 
 from .database import SessionLocal
 from .models import Exercise, IngredientItem, Recipe, RecipeIngredient
-from .recipe_data import INGREDIENTS, RECIPES, IngredientDef, RecipeDef
+from .nutrition import compute_macros
+from .recipe_data import INGREDIENTS, RECIPES
 
 # Global starter exercises (created_by_user_id stays NULL). guide_url is left
 # empty on purpose: fitundattraktiv.de uses article-style slugs that can't be
@@ -73,53 +74,38 @@ def seed_ingredients(db: Session) -> int:
     for definition in INGREDIENTS:
         item = existing.get(definition.name)
         if item is None:
-            db.add(
-                IngredientItem(
-                    name=definition.name,
-                    category=definition.category,
-                    default_unit=definition.unit,
-                )
-            )
+            item = IngredientItem(name=definition.name)
+            db.add(item)
             created += 1
-        else:
-            item.category = definition.category
-            item.default_unit = definition.unit
+        item.category = definition.category
+        item.default_unit = definition.unit
+        item.kcal_per_100 = definition.kcal
+        item.protein_per_100 = definition.protein
+        item.carbs_per_100 = definition.carbs
+        item.fat_per_100 = definition.fat
+        item.grams_per_unit = definition.grams_per_unit
     db.commit()
     return created
 
 
-def compute_macros(recipe: RecipeDef, by_name: dict[str, IngredientDef]) -> dict[str, float]:
-    """Per-serving macros derived from the recipe's actual ingredient quantities.
-
-    Keeps what the app displays consistent with what the recipe contains — and
-    with the weekly macro totals derived from it later.
-    """
-    totals = {"calories": 0.0, "protein_g": 0.0, "carbs_g": 0.0, "fat_g": 0.0}
-    for name, quantity in recipe.ingredients:
-        definition = by_name[name]
-        # grams_per_unit is 100 for g/ml, so this reduces to quantity/100 there.
-        hundreds = quantity * definition.grams_per_unit / 100
-        totals["calories"] += definition.kcal * hundreds
-        totals["protein_g"] += definition.protein * hundreds
-        totals["carbs_g"] += definition.carbs * hundreds
-        totals["fat_g"] += definition.fat * hundreds
-    return {key: round(value / recipe.servings, 1) for key, value in totals.items()}
-
-
 def seed_recipes(db: Session) -> tuple[int, int]:
-    """Upsert the starter recipes. Returns (created, updated)."""
-    by_name = {definition.name: definition for definition in INGREDIENTS}
+    """Upsert the starter recipes as global entries. Returns (created, updated)."""
     items = {item.name: item for item in db.scalars(select(IngredientItem))}
     existing = {
         recipe.title: recipe
         for recipe in db.scalars(
-            select(Recipe).options(selectinload(Recipe.ingredients))
+            select(Recipe)
+            .where(Recipe.created_by_user_id.is_(None))
+            .options(selectinload(Recipe.ingredients))
         )
     }
 
     created = updated = 0
     for definition in RECIPES:
-        macros = compute_macros(definition, by_name)
+        macros = compute_macros(
+            ((items[name], quantity) for name, quantity in definition.ingredients),
+            definition.servings,
+        )
         recipe = existing.get(definition.title)
         if recipe is None:
             recipe = Recipe(title=definition.title)
@@ -146,7 +132,7 @@ def seed_recipes(db: Session) -> tuple[int, int]:
                 RecipeIngredient(
                     ingredient_item_id=items[name].id,
                     quantity=quantity,
-                    unit=by_name[name].unit,
+                    unit=items[name].default_unit,
                 )
             )
     db.commit()

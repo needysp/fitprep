@@ -180,6 +180,21 @@ export interface Recipe {
   protein_g: number
   carbs_g: number
   fat_g: number
+  created_by_user_id: number | null
+  is_global: boolean
+  can_edit: boolean
+}
+
+export interface IngredientItem {
+  id: number
+  name: string
+  category: IngredientCategory
+  default_unit: string
+  kcal_per_100: number
+  protein_per_100: number
+  carbs_per_100: number
+  fat_per_100: number
+  grams_per_unit: number
 }
 
 export interface RecipeIngredient {
