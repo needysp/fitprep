@@ -4,10 +4,11 @@ Run with:  python -m app.seed
 """
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from .database import SessionLocal
-from .models import Exercise
+from .models import Exercise, IngredientItem, Recipe, RecipeIngredient
+from .recipe_data import INGREDIENTS, RECIPES, IngredientDef, RecipeDef
 
 # Global starter exercises (created_by_user_id stays NULL). guide_url is left
 # empty on purpose: fitundattraktiv.de uses article-style slugs that can't be
@@ -65,6 +66,93 @@ def seed_exercises(db: Session) -> int:
     return added
 
 
+def seed_ingredients(db: Session) -> int:
+    """Upsert the canonical ingredient catalog. Returns the number created."""
+    existing = {item.name: item for item in db.scalars(select(IngredientItem))}
+    created = 0
+    for definition in INGREDIENTS:
+        item = existing.get(definition.name)
+        if item is None:
+            db.add(
+                IngredientItem(
+                    name=definition.name,
+                    category=definition.category,
+                    default_unit=definition.unit,
+                )
+            )
+            created += 1
+        else:
+            item.category = definition.category
+            item.default_unit = definition.unit
+    db.commit()
+    return created
+
+
+def compute_macros(recipe: RecipeDef, by_name: dict[str, IngredientDef]) -> dict[str, float]:
+    """Per-serving macros derived from the recipe's actual ingredient quantities.
+
+    Keeps what the app displays consistent with what the recipe contains — and
+    with the weekly macro totals derived from it later.
+    """
+    totals = {"calories": 0.0, "protein_g": 0.0, "carbs_g": 0.0, "fat_g": 0.0}
+    for name, quantity in recipe.ingredients:
+        definition = by_name[name]
+        # grams_per_unit is 100 for g/ml, so this reduces to quantity/100 there.
+        hundreds = quantity * definition.grams_per_unit / 100
+        totals["calories"] += definition.kcal * hundreds
+        totals["protein_g"] += definition.protein * hundreds
+        totals["carbs_g"] += definition.carbs * hundreds
+        totals["fat_g"] += definition.fat * hundreds
+    return {key: round(value / recipe.servings, 1) for key, value in totals.items()}
+
+
+def seed_recipes(db: Session) -> tuple[int, int]:
+    """Upsert the starter recipes. Returns (created, updated)."""
+    by_name = {definition.name: definition for definition in INGREDIENTS}
+    items = {item.name: item for item in db.scalars(select(IngredientItem))}
+    existing = {
+        recipe.title: recipe
+        for recipe in db.scalars(
+            select(Recipe).options(selectinload(Recipe.ingredients))
+        )
+    }
+
+    created = updated = 0
+    for definition in RECIPES:
+        macros = compute_macros(definition, by_name)
+        recipe = existing.get(definition.title)
+        if recipe is None:
+            recipe = Recipe(title=definition.title)
+            db.add(recipe)
+            created += 1
+        else:
+            updated += 1
+
+        recipe.meal_type = definition.meal_type
+        recipe.servings = definition.servings
+        recipe.prep_minutes = definition.prep_minutes
+        recipe.instructions = definition.instructions
+        recipe.tags = list(definition.tags)
+        # No stock photos are invented: cards render a fallback until a real
+        # image URL is set.
+        recipe.image_url = recipe.image_url or None
+        for key, value in macros.items():
+            setattr(recipe, key, value)
+
+        recipe.ingredients.clear()
+        db.flush()
+        for name, quantity in definition.ingredients:
+            recipe.ingredients.append(
+                RecipeIngredient(
+                    ingredient_item_id=items[name].id,
+                    quantity=quantity,
+                    unit=by_name[name].unit,
+                )
+            )
+    db.commit()
+    return created, updated
+
+
 def main() -> None:
     db = SessionLocal()
     try:
@@ -73,6 +161,12 @@ def main() -> None:
             db.scalars(select(Exercise).where(Exercise.created_by_user_id.is_(None))).all()
         )
         print(f"Seeded {added} new global exercise(s); {total} in the global catalog.")
+
+        new_items = seed_ingredients(db)
+        print(f"Seeded {new_items} new ingredient(s); {len(INGREDIENTS)} in the catalog.")
+
+        created, updated = seed_recipes(db)
+        print(f"Recipes: {created} created, {updated} updated ({len(RECIPES)} total).")
     finally:
         db.close()
 

@@ -155,3 +155,42 @@ export interface BodyweightEntry {
   date: string
   weight_kg: number
 }
+
+// --- Recipes ---
+
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+
+export type IngredientCategory =
+  | 'produce'
+  | 'protein'
+  | 'dairy'
+  | 'pantry'
+  | 'frozen'
+  | 'other'
+
+export interface Recipe {
+  id: number
+  title: string
+  meal_type: MealType
+  servings: number
+  prep_minutes: number
+  tags: string[]
+  image_url: string | null
+  calories: number
+  protein_g: number
+  carbs_g: number
+  fat_g: number
+}
+
+export interface RecipeIngredient {
+  ingredient_item_id: number
+  name: string
+  category: IngredientCategory
+  quantity: number
+  unit: string
+}
+
+export interface RecipeDetail extends Recipe {
+  instructions: string
+  ingredients: RecipeIngredient[]
+}

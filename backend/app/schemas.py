@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
-from .models import DietGoal, UserRole
+from .models import DietGoal, IngredientCategory, MealType, UserRole
 
 
 class UserOut(BaseModel):
@@ -256,6 +256,44 @@ class PrefillSetOut(BaseModel):
     set_number: int
     weight_kg: float
     reps: int
+
+
+class RecipeIngredientOut(BaseModel):
+    ingredient_item_id: int
+    name: str
+    category: IngredientCategory
+    quantity: float
+    unit: str
+
+
+class RecipeMacros(BaseModel):
+    """Per serving."""
+
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+
+
+class RecipeSummaryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    meal_type: MealType
+    servings: int
+    prep_minutes: int
+    tags: list[str]
+    image_url: str | None
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+
+
+class RecipeDetailOut(RecipeSummaryOut):
+    instructions: str
+    ingredients: list[RecipeIngredientOut]
 
 
 class PrefillOut(BaseModel):

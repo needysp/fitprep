@@ -9,6 +9,8 @@ import { ExerciseHistoryPage } from './pages/ExerciseHistoryPage'
 import { LoginPage } from './pages/LoginPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
+import { RecipeDetailPage } from './pages/RecipeDetailPage'
+import { RecipesPage } from './pages/RecipesPage'
 import { RoutinesPage } from './pages/RoutinesPage'
 import { SessionPage } from './pages/SessionPage'
 import { TrainingPage } from './pages/TrainingPage'
@@ -67,16 +69,8 @@ export default function App() {
           <Route path="/training/session/:id" element={<SessionPage />} />
           <Route path="/training/exercise/:id" element={<ExerciseHistoryPage />} />
           <Route path="/bodyweight" element={<BodyweightPage />} />
-          <Route
-            path="/recipes"
-            element={
-              <PlaceholderPage
-                title="Recipes"
-                description="Easy meal-prep recipes by meal type, with macros, tags and photos."
-                slice={2}
-              />
-            }
-          />
+          <Route path="/recipes" element={<RecipesPage />} />
+          <Route path="/recipes/:id" element={<RecipeDetailPage />} />
           <Route
             path="/shopping"
             element={

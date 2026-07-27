@@ -83,6 +83,13 @@ plus a design system in `stitch_base_design/aura/DESIGN.md`. How to use it:
   PRs and prefill key on `exercise_id`, duplicates would silently split a user's history.
   Deleting an exercise is **refused** while any workout log or routine references it, so training
   history can never disappear as a side effect.
+- **Recipe macros are computed from the ingredients**, not typed in by hand: the seed holds per-100 g
+  nutrition for every catalog ingredient and derives each recipe's per-serving macros from its actual
+  quantities. Keeps what the app shows consistent with what the recipe contains — and with the weekly
+  macro totals derived from it in Slice 3. (Nutrition values live in the seed module only; the DB
+  still stores macros per serving on `Recipe`, as planned.)
+- **No invented recipe photos:** `image_url` is seeded empty and cards render a tinted fallback,
+  the same rule applied to exercise `guide_url`. Real photos can be added later.
 - **Ingredients are a canonical catalog**, not free text: recipes reference `IngredientItem` rows
   (with a supermarket-department category). This makes shopping-list aggregation robust, enables the
   department grouping from the design, and is the join point for future discount/price data.
@@ -307,9 +314,9 @@ before the next starts.
    persist per user.
 
 **Slice 2 — Recipes (end-to-end)**
-6. Backend: seed the **ingredient catalog** (canonical names + department categories) and 16 recipes
-   (4 per meal type) referencing it, with macros, tags, and image URLs where available (own/free-stock
-   photos only); `routers/recipes.py`.
+6. Backend: seed the **ingredient catalog** (45 canonical items + department categories + per-100 g
+   nutrition) and 16 recipes (4 per meal type) referencing it, with tags and **macros computed from
+   the ingredient quantities**; `routers/recipes.py` (read-only list + detail).
 7. Frontend: `RecipesPage` with meal-type tabs, cards showing photo (graceful without), tags,
    ingredients, instructions, macros.
    → **Verify:** browse 4 recipes per meal type with correct macros, tags render, cards without

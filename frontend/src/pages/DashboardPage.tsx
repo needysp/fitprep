@@ -15,7 +15,7 @@ const sections = [
     title: 'Recipes',
     description: 'Meal-prep recipes with macros.',
     icon: UtensilsCrossed,
-    slice: 2,
+    slice: null,
   },
   {
     to: '/shopping',
