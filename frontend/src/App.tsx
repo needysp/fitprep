@@ -3,10 +3,15 @@ import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import { AppLayout } from './components/AppLayout'
 import { AdminPage } from './pages/AdminPage'
+import { BodyweightPage } from './pages/BodyweightPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { ExerciseHistoryPage } from './pages/ExerciseHistoryPage'
 import { LoginPage } from './pages/LoginPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
+import { RoutinesPage } from './pages/RoutinesPage'
+import { SessionPage } from './pages/SessionPage'
+import { TrainingPage } from './pages/TrainingPage'
 
 function FullScreenSpinner() {
   return (
@@ -57,16 +62,11 @@ export default function App() {
           }
         >
           <Route path="/" element={<DashboardPage />} />
-          <Route
-            path="/training"
-            element={
-              <PlaceholderPage
-                title="Training"
-                description="Build routines, log sets with prefill from your last session, and track history, PRs and bodyweight."
-                slice={1}
-              />
-            }
-          />
+          <Route path="/training" element={<TrainingPage />} />
+          <Route path="/training/routines" element={<RoutinesPage />} />
+          <Route path="/training/session/:id" element={<SessionPage />} />
+          <Route path="/training/exercise/:id" element={<ExerciseHistoryPage />} />
+          <Route path="/bodyweight" element={<BodyweightPage />} />
           <Route
             path="/recipes"
             element={

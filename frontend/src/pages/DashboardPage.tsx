@@ -8,7 +8,7 @@ const sections = [
     title: 'Training',
     description: 'Build routines and log your workouts.',
     icon: Dumbbell,
-    slice: 1,
+    slice: null,
   },
   {
     to: '/recipes',
@@ -24,7 +24,7 @@ const sections = [
     icon: ShoppingCart,
     slice: 3,
   },
-]
+] as const
 
 export function DashboardPage() {
   const { user } = useAuth()
@@ -49,9 +49,11 @@ export function DashboardPage() {
             </div>
             <h2 className="mt-4 font-semibold">{title}</h2>
             <p className="mt-1 text-sm leading-relaxed text-ink-soft">{description}</p>
-            <span className="mt-4 inline-block rounded-full bg-parchment px-3 py-1 text-xs font-medium text-ink-soft">
-              Coming in Slice {slice}
-            </span>
+            {slice !== null && (
+              <span className="mt-4 inline-block rounded-full bg-parchment px-3 py-1 text-xs font-medium text-ink-soft">
+                Coming in Slice {slice}
+              </span>
+            )}
           </Link>
         ))}
       </div>

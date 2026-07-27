@@ -7,9 +7,16 @@ from sqlalchemy.orm import Session
 from ..auth import get_current_user
 from ..database import get_db
 from ..models import BodyweightEntry, User, UserProfile
-from ..schemas import ProfileCreate, ProfileOut, ProfileUpdate
+from ..schemas import (
+    BodyweightCreate,
+    BodyweightOut,
+    ProfileCreate,
+    ProfileOut,
+    ProfileUpdate,
+)
 
 router = APIRouter(prefix="/api/profile", tags=["profile"])
+bodyweight_router = APIRouter(prefix="/api/bodyweight", tags=["bodyweight"])
 
 
 def _get_profile(db: Session, user: User) -> UserProfile | None:
@@ -56,3 +63,55 @@ def update_profile(
     db.commit()
     db.refresh(profile)
     return profile
+
+
+@bodyweight_router.get("", response_model=list[BodyweightOut])
+def list_bodyweight(
+    user: User = Depends(get_current_user), db: Session = Depends(get_db)
+):
+    return db.scalars(
+        select(BodyweightEntry)
+        .where(BodyweightEntry.user_id == user.id)
+        .order_by(BodyweightEntry.date.asc())
+    ).all()
+
+
+@bodyweight_router.post("", response_model=BodyweightOut, status_code=201)
+def log_bodyweight(
+    data: BodyweightCreate,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    entry_date = data.date or date.today()
+    existing = db.scalar(
+        select(BodyweightEntry).where(
+            BodyweightEntry.user_id == user.id, BodyweightEntry.date == entry_date
+        )
+    )
+    # One entry per day: logging again just corrects that day's value.
+    if existing is not None:
+        existing.weight_kg = data.weight_kg
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    entry = BodyweightEntry(user_id=user.id, date=entry_date, weight_kg=data.weight_kg)
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+    return entry
+
+
+@bodyweight_router.delete("/{entry_id}", status_code=204)
+def delete_bodyweight(
+    entry_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+):
+    entry = db.scalar(
+        select(BodyweightEntry).where(
+            BodyweightEntry.id == entry_id, BodyweightEntry.user_id == user.id
+        )
+    )
+    if entry is None:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    db.delete(entry)
+    db.commit()

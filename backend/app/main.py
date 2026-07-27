@@ -4,7 +4,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from . import auth
 from .config import get_settings
-from .routers import admin, profile
+from .routers import admin, exercises, profile, routines, workouts
 
 settings = get_settings()
 
@@ -28,7 +28,11 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(profile.router)
+app.include_router(profile.bodyweight_router)
 app.include_router(admin.router)
+app.include_router(exercises.router)
+app.include_router(routines.router)
+app.include_router(workouts.router)
 
 
 @app.get("/api/health")

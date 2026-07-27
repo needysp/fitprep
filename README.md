@@ -37,6 +37,7 @@ python3 -m venv .venv            # or: uv venv .venv
 .venv/bin/pip install -r requirements.txt
 cp .env.example .env             # fill in Google client id/secret + a random SESSION_SECRET
 .venv/bin/alembic upgrade head   # creates/updates app.db
+.venv/bin/python -m app.seed     # starter exercises (idempotent)
 .venv/bin/uvicorn app.main:app --reload   # http://localhost:8000 (Swagger at /docs)
 ```
 
@@ -52,8 +53,12 @@ Open <http://localhost:5173>, sign in with Google, complete onboarding.
 
 ## Notes
 
-- All data is per-user; the exercise/recipe/ingredient catalogs are global and seeded
-  (`python -m app.seed`, from Slice 1 onward).
+- All data is per-user. The exercise catalog is shared: **admins** curate the global list, and any
+  user can create **private** exercises (visible only to them) straight from the exercise picker —
+  so a missing machine at the gym never blocks logging.
+- Exercise guide links (`guide_url`) start empty and are pasted in per exercise; they are not
+  guessed, since fitundattraktiv.de uses article-style slugs.
+- An exercise cannot be deleted while any workout or routine still references it.
 - Schema changes go through Alembic: `alembic revision --autogenerate -m "..."` then
   `alembic upgrade head`.
 - Deployment (Slice 5): FastAPI serves `frontend/dist` on one origin behind Caddy/HTTPS,

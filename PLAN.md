@@ -15,7 +15,7 @@ one-time **onboarding** (height, training goal, diet goal, starting bodyweight),
 app — with all data stored **per authenticated user**:
 1. **Training** — define a reusable **training plan / routine** (e.g. Push/Pull/Legs) with a planned
    exercise list, then log each workout day from it with basic input (sets, kg, reps). Each exercise
-   links out to its page on fitundaktiv.de. Notes and a goal are recorded **per training day per
+   links out to a guide page (e.g. fitundattraktiv.de). Notes and a goal are recorded **per training day per
    exercise**, so the app builds a training history (per-day notes, goals, achievements/progress).
    Logging **prefills the previous session's** weights/reps, sessions track **duration**
    (started/finished timestamps), and a **bodyweight log** tracks progress over time against the diet goal.
@@ -64,8 +64,18 @@ plus a design system in `stitch_base_design/aura/DESIGN.md`. How to use it:
   role and it re-syncs on every login (allowlist is the source of truth). `ADMIN_EMAILS` solves the
   first-admin bootstrap and can never be locked out — those emails are always allowed as admins.
 - **Scope:** auth + onboarding + all sections above, **multi-user from the start** (every record is user-scoped).
-- **Exercise info:** store a fitundaktiv.de link + the user's own short notes per exercise
-  (do NOT copy their copyrighted descriptions/images).
+- **Exercise info:** store a `guide_url` (e.g. fitundattraktiv.de) + the user's own short notes per
+  exercise (do NOT copy their copyrighted descriptions/images). The field is neutral so any guide
+  can be linked; it is **not seeded with guessed URLs** (that site uses article-style slugs that
+  can't be derived from an exercise name, so a wrong link is worse than none) — links are pasted in
+  per exercise from the UI.
+- **Who may create exercises (hybrid):** admins curate the **global catalog**; every user can create
+  **private exercises** only they see (`Exercise.created_by_user_id` NULL = global, set = private).
+  Rationale: admin-only would block a user at the gym when a machine is missing from the catalog,
+  while letting everyone write to the global catalog would fill it with duplicates/typos — and since
+  PRs and prefill key on `exercise_id`, duplicates would silently split a user's history.
+  Deleting an exercise is **refused** while any workout log or routine references it, so training
+  history can never disappear as a side effect.
 - **Ingredients are a canonical catalog**, not free text: recipes reference `IngredientItem` rows
   (with a supermarket-department category). This makes shopping-list aggregation robust, enables the
   department grouping from the design, and is the join point for future discount/price data.
@@ -172,8 +182,9 @@ ingredient, and recipe catalogs are global (seeded, shared by all users).
   (enum lean_bulk/bulk/cut/custom) `+ diet_custom_text` — created during onboarding; its presence is
   how the app knows onboarding is complete. **No weight field** — current weight is the latest
   `BodyweightEntry`; onboarding creates the first one.
-- **Exercise** — `id, name, muscle_group, fitundaktiv_url` (global catalog entry;
-  `fitundaktiv_url` links out, no copyrighted content stored)
+- **Exercise** — `id, name, muscle_group, guide_url, created_by_user_id` — `created_by_user_id`
+  NULL = shared global catalog (seeded / admin-managed), set = private to that user;
+  `guide_url` links out, no copyrighted content stored
 - **Routine** — `id, user_id (FK), name, description` — a reusable training-plan template
 - **RoutineExercise** — `id, routine_id (FK), exercise_id (FK), position, target_sets, target_reps`
   — the planned exercise list for a routine
@@ -275,7 +286,8 @@ before the next starts.
    desktop (sidebar).
 
 **Slice 1 — Training (end-to-end)**
-4. Backend: `seed.py` starter exercises (fitundaktiv links); `routers/exercises.py`, `routines.py`,
+4. Backend: `seed.py` starter exercises (25 global, `guide_url` blank); `routers/exercises.py`
+   (global + own visibility, admin-vs-owner edit rules, delete guarded when referenced), `routines.py`,
    `workouts.py` (sessions/logs/sets, `from_routine_id`, start/finish timestamps, history+PRs,
    prefill, derived duration + volume); bodyweight endpoints.
 5. Frontend: `RoutinesPage` (build a plan), `TrainingPage` (start a day from a routine, log sets with

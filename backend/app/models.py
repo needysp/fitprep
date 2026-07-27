@@ -122,14 +122,25 @@ class AllowedEmail(Base):
 
 
 class Exercise(Base):
-    """Global catalog entry. fitundaktiv_url links out; no copyrighted content stored."""
+    """An exercise, either global or private to one user.
+
+    created_by_user_id NULL = global catalog (seeded / admin-managed, visible to
+    everyone); set = a private exercise only its creator sees, so a user can add
+    whatever their gym has without polluting the shared catalog.
+
+    guide_url just links out (e.g. fitundattraktiv.de); no copyrighted content
+    is stored.
+    """
 
     __tablename__ = "exercises"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), unique=True)
+    name: Mapped[str] = mapped_column(String(255), index=True)
     muscle_group: Mapped[str] = mapped_column(String(64), default="")
-    fitundaktiv_url: Mapped[str] = mapped_column(String(512), default="")
+    guide_url: Mapped[str] = mapped_column(String(512), default="")
+    created_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
 
 
 class Routine(Base):

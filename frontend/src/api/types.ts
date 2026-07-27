@@ -37,3 +37,108 @@ export interface AdminUser {
   role: UserRole
   created_at: string
 }
+
+// --- Training ---
+
+export interface Exercise {
+  id: number
+  name: string
+  muscle_group: string
+  guide_url: string
+  created_by_user_id: number | null
+  is_global: boolean
+  can_edit: boolean
+}
+
+export interface RoutineExercise {
+  id: number
+  exercise_id: number
+  position: number
+  target_sets: number | null
+  target_reps: string | null
+  exercise: Exercise
+}
+
+export interface Routine {
+  id: number
+  name: string
+  description: string
+  exercises: RoutineExercise[]
+}
+
+export interface WorkoutSet {
+  id: number
+  set_number: number
+  weight_kg: number
+  reps: number
+}
+
+export interface ExerciseLog {
+  id: number
+  exercise_id: number
+  notes: string
+  goal: string
+  exercise: Exercise
+  sets: WorkoutSet[]
+}
+
+export interface SessionSummary {
+  id: number
+  date: string
+  notes: string
+  routine_id: number | null
+  routine_name: string | null
+  started_at: string | null
+  finished_at: string | null
+  duration_minutes: number | null
+  total_volume_kg: number
+  total_sets: number
+}
+
+export interface SessionDetail extends SessionSummary {
+  logs: ExerciseLog[]
+}
+
+export interface PrefillSet {
+  set_number: number
+  weight_kg: number
+  reps: number
+}
+
+export interface Prefill {
+  exercise_id: number
+  last_session_date: string | null
+  goal: string
+  sets: PrefillSet[]
+}
+
+export interface PersonalRecord {
+  weight_kg: number
+  reps: number
+  date: string
+  estimated_1rm: number
+}
+
+export interface ExerciseHistoryPoint {
+  date: string
+  session_id: number
+  best_weight_kg: number
+  best_reps: number
+  total_volume_kg: number
+  sets: WorkoutSet[]
+  notes: string
+  goal: string
+}
+
+export interface ExerciseHistory {
+  exercise: Exercise
+  best_weight: PersonalRecord | null
+  best_estimated_1rm: PersonalRecord | null
+  points: ExerciseHistoryPoint[]
+}
+
+export interface BodyweightEntry {
+  id: number
+  date: string
+  weight_kg: number
+}
