@@ -60,7 +60,10 @@ Open <http://localhost:5173>, sign in with Google, complete onboarding.
   guessed, since fitundattraktiv.de uses article-style slugs. Each exercise can also hold your own
   how-to notes (target muscles, Haltung & Ausführung, each with an optional image URL), shown in an
   overlay while training via the ⓘ button.
-- An exercise cannot be deleted while any workout or routine still references it.
+- An exercise cannot be deleted while any workout or routine still references it, and a recipe
+  cannot be deleted while a meal plan still uses it.
+- The shopping list is never stored — it is recomputed from the week's plan each time you open it,
+  scaled to the servings you actually planned, then your tick marks are laid over the top.
 - Recipes follow the same rule: the 16 seeded ones are shared, and anything you write is private to
   you (admins can publish to the shared catalog). **Macros are always computed** from the ingredient
   quantities and each ingredient's per-100 g nutrition — never typed in — so they can't drift from

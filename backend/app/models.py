@@ -319,8 +319,9 @@ class MealPlanItem(Base):
 
     week_start is always the ISO Monday (validated server-side); day_of_week is
     0-6 with 0 = Monday. One item = one serving eaten, so shopping quantities
-    scale by planned_servings / recipe.servings. One recipe per (day, meal_type)
-    slot for breakfast/lunch/dinner (UI-enforced); snacks may repeat.
+    scale by planned_servings / recipe.servings. A slot may hold several recipes
+    (muesli *and* a shake for breakfast), and the same recipe twice just means
+    two servings.
     """
 
     __tablename__ = "meal_plan_items"

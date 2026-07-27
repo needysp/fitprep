@@ -22,7 +22,7 @@ const sections = [
     title: 'Shopping List',
     description: "Plan the week and shop once.",
     icon: ShoppingCart,
-    slice: 3,
+    slice: null,
   },
 ] as const
 

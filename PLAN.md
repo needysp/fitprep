@@ -101,7 +101,12 @@ plus a design system in `stitch_base_design/aura/DESIGN.md`. How to use it:
   (with a supermarket-department category). This makes shopping-list aggregation robust, enables the
   department grouping from the design, and is the join point for future discount/price data.
 - **Meal plan is per-day:** each `MealPlanItem` is one recipe in one `day_of_week` + `meal_type`
-  slot, so servings scaling and daily macro totals are well-defined.
+  slot, so servings scaling and daily macro totals are well-defined. **Any slot can hold several
+  recipes** — a breakfast is often muesli *and* a protein shake — and adding the same recipe twice
+  simply counts as two servings, which the shopping quantities and macro totals both pick up.
+- **Shopping quantities scale to servings actually planned:** a 4-serving recipe eaten four times
+  buys one full batch of ingredients; eaten twice, half. This buys what will be eaten rather than
+  rounding up to whole batches — cooking a smaller portion is easy, and over-buying is waste.
 - **Single source of truth for weight:** the profile stores height/goals only; current weight is
   the latest `BodyweightEntry` (onboarding creates the first entry).
 - **Week convention:** `week_start` is always the **ISO Monday** of the week, validated server-side.
@@ -275,9 +280,12 @@ user's most recent `WorkoutSet`s for that exercise and pre-populate the form.
   ingredients), `POST/PUT/DELETE /api/recipes` (write your own; admins may publish to the shared
   catalog; macros always computed server-side)
 - `GET/POST /api/ingredients` (shared ingredient catalog incl. per-100 g nutrition)
-- `GET/PUT /api/mealplan?week_start=` (the week's per-day recipe grid),
-  `GET /api/shopping-list?week_start=` (aggregated by department + check state + daily macro totals),
-  `PUT /api/shopping-list/check` (toggle an item by `ingredient_item_id`),
+- `GET /api/mealplan?week_start=` (the week's per-day recipe grid + per-day macro totals),
+  `POST /api/mealplan?week_start=` (add one meal to a slot),
+  `DELETE /api/mealplan/{item_id}` (remove one meal) — single-item writes rather than the
+  originally sketched whole-week `PUT`, so tapping a slot doesn't resend the entire week
+- `GET /api/shopping-list?week_start=` (aggregated by department + check state),
+  `PUT /api/shopping-list/check?week_start=` (toggle an item by `ingredient_item_id`),
   `POST /api/shopping-list/clear?week_start=` (Clear All — uncheck everything)
 - `GET /api/dashboard` (last session summary, workouts + total time this week, bodyweight trend,
   today's planned meals)
@@ -339,9 +347,11 @@ before the next starts.
 8. Backend: `routers/mealplan.py` — per-day weekly plan (`week_start` = ISO Monday, validated),
    derived shopping list (servings-scaled, grouped by department), check-off state by ingredient ID,
    Clear All, daily macro totals.
-9. Frontend: `ShoppingListPage` — day × meal-type grid to pick the week's recipes, aggregated list
-   grouped by department with tap-to-check-off, **Clear All** and **Print** (print stylesheet),
-   daily macro totals.
+9. Frontend: `ShoppingListPage` — week navigation with **Plan / Shopping list** tabs. The plan tab is
+   a card per weekday with a slot per meal type (day × meal-type grid, stacked for phones) and
+   per-day macro totals; the list tab is the aggregated list grouped by department with
+   tap-to-check-off (optimistic, so it feels instant in a shop), **Clear All** and **Print**
+   (print stylesheet strips the app chrome).
    → **Verify:** plan a week incl. one recipe eaten on several days, confirm quantities scale with
    servings, department grouping, check-off + Clear All persistence, print view, and per-day macro totals.
 

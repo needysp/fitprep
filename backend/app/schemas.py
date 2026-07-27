@@ -345,6 +345,75 @@ class IngredientItemOut(BaseModel):
     grams_per_unit: float
 
 
+# --- Meal plan + shopping list ---
+
+
+class MealPlanItemIn(BaseModel):
+    day_of_week: int = Field(ge=0, le=6)  # 0 = Monday
+    meal_type: MealType
+    recipe_id: int
+
+
+class MealPlanItemOut(BaseModel):
+    id: int
+    day_of_week: int
+    meal_type: MealType
+    recipe_id: int
+    recipe_title: str
+    servings: int
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+
+
+class DayTotals(BaseModel):
+    day_of_week: int
+    date: date_type
+    meals: int
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+
+
+class MealPlanOut(BaseModel):
+    week_start: date_type
+    items: list[MealPlanItemOut]
+    days: list[DayTotals]
+    # Daily average across the days that actually have meals planned.
+    average_calories: float
+    average_protein_g: float
+
+
+class ShoppingItemOut(BaseModel):
+    ingredient_item_id: int
+    name: str
+    category: IngredientCategory
+    quantity: float
+    unit: str
+    checked: bool
+    # Which recipes drive this line — useful when standing in the shop.
+    used_in: list[str]
+
+
+class ShoppingGroupOut(BaseModel):
+    category: IngredientCategory
+    items: list[ShoppingItemOut]
+
+
+class ShoppingListOut(BaseModel):
+    week_start: date_type
+    groups: list[ShoppingGroupOut]
+    total_items: int
+    checked_items: int
+
+
+class ShoppingCheckIn(BaseModel):
+    ingredient_item_id: int
+    checked: bool
+
+
 class PrefillOut(BaseModel):
     """Last time this exercise was trained, to pre-populate the log form."""
 

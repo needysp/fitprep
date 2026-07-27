@@ -21,3 +21,27 @@
     @apply bg-surface font-sans text-ink antialiased;
   }
 }
+
+/* Printing is for the shopping list: drop the app chrome and ink-heavy styling. */
+@media print {
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  section {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #eae5e0;
+  }
+}

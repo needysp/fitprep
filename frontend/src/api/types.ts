@@ -209,3 +209,53 @@ export interface RecipeDetail extends Recipe {
   instructions: string
   ingredients: RecipeIngredient[]
 }
+
+// --- Meal plan + shopping list ---
+
+export interface MealPlanItem {
+  id: number
+  day_of_week: number
+  meal_type: MealType
+  recipe_id: number
+  recipe_title: string
+  servings: number
+  calories: number
+  protein_g: number
+  carbs_g: number
+  fat_g: number
+}
+
+export interface DayTotals {
+  day_of_week: number
+  date: string
+  meals: number
+  calories: number
+  protein_g: number
+  carbs_g: number
+  fat_g: number
+}
+
+export interface MealPlan {
+  week_start: string
+  items: MealPlanItem[]
+  days: DayTotals[]
+  average_calories: number
+  average_protein_g: number
+}
+
+export interface ShoppingItem {
+  ingredient_item_id: number
+  name: string
+  category: IngredientCategory
+  quantity: number
+  unit: string
+  checked: boolean
+  used_in: string[]
+}
+
+export interface ShoppingList {
+  week_start: string
+  groups: { category: IngredientCategory; items: ShoppingItem[] }[]
+  total_items: number
+  checked_items: number
+}

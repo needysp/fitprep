@@ -21,7 +21,18 @@ export const MEAL_TYPES = [
   { value: 'snack', label: 'Snacks' },
 ] as const
 
-/** Supermarket departments, in a sensible walking order for Slice 3's list. */
+/** Weekday labels, Monday-first to match day_of_week 0-6. */
+export const WEEKDAYS = [
+  { short: 'Mon', long: 'Monday' },
+  { short: 'Tue', long: 'Tuesday' },
+  { short: 'Wed', long: 'Wednesday' },
+  { short: 'Thu', long: 'Thursday' },
+  { short: 'Fri', long: 'Friday' },
+  { short: 'Sat', long: 'Saturday' },
+  { short: 'Sun', long: 'Sunday' },
+] as const
+
+/** Supermarket departments, in a sensible walking order for the shopping list. */
 export const INGREDIENT_CATEGORIES = [
   { value: 'produce', label: 'Produce' },
   { value: 'protein', label: 'Protein' },

@@ -8,10 +8,10 @@ import { DashboardPage } from './pages/DashboardPage'
 import { ExerciseHistoryPage } from './pages/ExerciseHistoryPage'
 import { LoginPage } from './pages/LoginPage'
 import { OnboardingPage } from './pages/OnboardingPage'
-import { PlaceholderPage } from './pages/PlaceholderPage'
 import { RecipeDetailPage } from './pages/RecipeDetailPage'
 import { RecipeEditorPage } from './pages/RecipeEditorPage'
 import { RecipesPage } from './pages/RecipesPage'
+import { ShoppingListPage } from './pages/ShoppingListPage'
 import { RoutinesPage } from './pages/RoutinesPage'
 import { SessionPage } from './pages/SessionPage'
 import { TrainingPage } from './pages/TrainingPage'
@@ -75,16 +75,7 @@ export default function App() {
           <Route path="/recipes/new" element={<RecipeEditorPage />} />
           <Route path="/recipes/:id" element={<RecipeDetailPage />} />
           <Route path="/recipes/:id/edit" element={<RecipeEditorPage />} />
-          <Route
-            path="/shopping"
-            element={
-              <PlaceholderPage
-                title="Shopping List"
-                description="Plan the week's meals day by day and get an aggregated, department-grouped shopping list."
-                slice={3}
-              />
-            }
-          />
+          <Route path="/shopping" element={<ShoppingListPage />} />
           <Route
             path="/admin"
             element={
